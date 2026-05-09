@@ -1,0 +1,2511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Química — Herramientas Completas</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── Root tokens ─────────────────────────────────────────────────────────── */
+:root {
+  /* Dark theme (Tabla Periódica) */
+  --dark-bg: #0a0e1a;
+  --dark-panel: #0f1629;
+  --dark-border: #1e3a5f;
+  --dark-accent: #00d4ff;
+  --dark-accent2: #ff6b35;
+  --dark-accent3: #7fff47;
+  --dark-text: #c8e6ff;
+  --dark-dim: #4a6fa5;
+  --dark-glow: 0 0 20px rgba(0,212,255,0.4);
+  --dark-glow2: 0 0 20px rgba(255,107,53,0.4);
+
+  /* Light theme (Calculadora Molecular) */
+  --light-bg: #f5f0e8;
+  --light-paper: #fdfaf4;
+  --light-ink: #1a1208;
+  --light-ink2: #3d3020;
+  --light-dim: #9a8e7a;
+  --light-rule: #d4c9b0;
+  --light-accent: #c8401a;
+  --light-accent2: #1a6bc8;
+  --light-accent3: #2a8a3e;
+  --light-accent4: #8a2ac8;
+  --light-highlight: #fff3a0;
+  --light-shadow: rgba(26,18,8,0.08);
+}
+
+/* ── App shell ───────────────────────────────────────────────────────────── */
+body {
+  min-height: 100vh;
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+/* ── Tab bar ─────────────────────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  background: #060810;
+  border-bottom: 2px solid var(--dark-border);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 16px 10px;
+  background: transparent;
+  border: none;
+  color: var(--dark-dim);
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(0.6rem, 2.5vw, 0.8rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, border-bottom 0.2s;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab-btn:hover { color: var(--dark-text); }
+
+.tab-btn.active {
+  color: var(--dark-accent);
+  border-bottom: 3px solid var(--dark-accent);
+  text-shadow: 0 0 12px rgba(0,212,255,0.5);
+}
+
+.tab-btn.active.tab-calc {
+  color: #c8401a;
+  border-bottom-color: #c8401a;
+  text-shadow: none;
+}
+
+.tab-btn.active.tab-conv {
+  color: #a78bfa;
+  border-bottom-color: #a78bfa;
+  text-shadow: 0 0 12px rgba(167,139,250,0.5);
+}
+.tab-btn.active.tab-visual {
+  color: #34d399;
+  border-bottom-color: #34d399;
+  text-shadow: 0 0 12px rgba(52,211,153,0.5);
+}
+.tab-btn.active.tab-dilucion {
+  color: #fbbf24;
+  border-bottom-color: #fbbf24;
+  text-shadow: 0 0 12px rgba(251,191,36,0.4);
+}
+.tab-btn.active.tab-quiz {
+  color: #f472b6;
+  border-bottom-color: #f472b6;
+  text-shadow: 0 0 12px rgba(244,114,182,0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL 4 — TABLA VISUAL
+   ═══════════════════════════════════════════════════════════════════════════ */
+#panel-visual {
+  background: var(--dark-bg);
+  min-height: calc(100vh - 57px);
+  padding: 20px 10px 40px;
+  color: var(--dark-text);
+  overflow-x: auto;
+}
+#panel-visual h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1rem,3vw,1.6rem);
+  font-weight:900; color:var(--dark-accent);
+  text-shadow:var(--dark-glow);
+  text-align:center; margin-bottom:6px; letter-spacing:0.15em;
+}
+.vt-subtitle {
+  text-align:center; font-size:0.7rem; color:var(--dark-dim);
+  letter-spacing:0.2em; text-transform:uppercase;
+  font-family:'Share Tech Mono',monospace; margin-bottom:16px;
+}
+.vt-legend {
+  display:flex; flex-wrap:wrap; justify-content:center; gap:6px;
+  margin-bottom:16px; max-width:900px; margin-inline:auto;
+}
+.vt-legend-item {
+  display:flex; align-items:center; gap:5px;
+  font-size:0.6rem; color:var(--dark-dim);
+  font-family:'Share Tech Mono',monospace;
+}
+.vt-legend-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+.vt-grid-wrap { overflow-x:auto; padding-bottom:10px; }
+.vt-grid {
+  display:grid;
+  grid-template-columns: repeat(18, minmax(42px,1fr));
+  gap:3px;
+  min-width:800px;
+  max-width:1000px;
+  margin:0 auto;
+}
+.vt-cell {
+  aspect-ratio:1;
+  border-radius:3px;
+  cursor:pointer;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:2px; position:relative;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border:1px solid transparent;
+}
+.vt-cell:hover {
+  transform:scale(1.15); z-index:10;
+  box-shadow:0 0 14px rgba(255,255,255,0.3);
+  border-color:rgba(255,255,255,0.4);
+}
+.vt-cell .vt-z {
+  font-size:0.45rem; color:rgba(255,255,255,0.6);
+  font-family:'Share Tech Mono',monospace;
+  line-height:1; align-self:flex-start; padding-left:2px;
+}
+.vt-cell .vt-sym {
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(0.55rem,1.4vw,0.85rem);
+  font-weight:900; color:#fff; line-height:1;
+  text-shadow:0 1px 3px rgba(0,0,0,0.5);
+}
+.vt-cell .vt-mass {
+  font-size:0.38rem; color:rgba(255,255,255,0.55);
+  font-family:'Share Tech Mono',monospace; line-height:1;
+}
+.vt-cell-empty { background:transparent; cursor:default; border:none; }
+.vt-cell-empty:hover { transform:none; box-shadow:none; }
+/* Category colors */
+.vt-noMetal      { background:linear-gradient(135deg,#1d4a2a,#2d6a3a); }
+.vt-metalAlc     { background:linear-gradient(135deg,#4a1a1a,#7a2a2a); }
+.vt-metalAlcTerr { background:linear-gradient(135deg,#4a2a1a,#7a4a1a); }
+.vt-metalTrans   { background:linear-gradient(135deg,#1a2a4a,#2a4a7a); }
+.vt-metal        { background:linear-gradient(135deg,#2a2a4a,#4a4a6a); }
+.vt-metaloide    { background:linear-gradient(135deg,#2a3a1a,#4a5a2a); }
+.vt-halogeno     { background:linear-gradient(135deg,#3a1a3a,#6a2a5a); }
+.vt-gasNoble     { background:linear-gradient(135deg,#1a3a4a,#2a5a6a); }
+.vt-lantanido    { background:linear-gradient(135deg,#3a2a1a,#5a4a2a); }
+.vt-actinido     { background:linear-gradient(135deg,#3a1a2a,#5a2a3a); }
+/* Modal */
+.vt-modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.8);
+  z-index:500; display:flex; align-items:center; justify-content:center;
+  padding:20px; backdrop-filter:blur(4px);
+}
+.vt-modal {
+  background:var(--dark-panel); border:1px solid var(--dark-border);
+  border-radius:8px; max-width:460px; width:100%;
+  animation:tFadeIn 0.2s ease; overflow:hidden;
+}
+.vt-modal-header {
+  display:flex; align-items:center; gap:16px;
+  padding:20px; border-bottom:1px solid var(--dark-border);
+}
+.vt-modal-sym-box {
+  width:70px; height:70px; border-radius:4px; flex-shrink:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative;
+}
+.vt-modal-sym-box .mz { font-size:0.7rem; color:rgba(255,255,255,0.6); font-family:'Share Tech Mono',monospace; position:absolute; top:6px; left:8px; }
+.vt-modal-sym-box .ms { font-family:'Orbitron',sans-serif; font-size:2rem; font-weight:900; color:#fff; }
+.vt-modal-sym-box .mm { font-size:0.6rem; color:rgba(255,255,255,0.55); font-family:'Share Tech Mono',monospace; }
+.vt-modal-info h3 { font-family:'Orbitron',sans-serif; font-size:1.1rem; color:var(--dark-text); font-weight:700; }
+.vt-modal-info .mi-cat { font-size:0.7rem; color:var(--dark-accent2); text-transform:uppercase; letter-spacing:0.2em; margin-top:3px; }
+.vt-modal-info .mi-cfg { font-size:0.7rem; color:var(--dark-dim); margin-top:5px; font-family:'Share Tech Mono',monospace; }
+.vt-modal-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:1px; background:var(--dark-border);
+  border-bottom:1px solid var(--dark-border);
+}
+.vt-modal-cell {
+  background:var(--dark-panel); padding:12px 14px;
+}
+.vt-modal-cell .mlbl { font-size:0.58rem; color:var(--dark-dim); text-transform:uppercase; letter-spacing:0.15em; font-family:'Share Tech Mono',monospace; }
+.vt-modal-cell .mval { font-family:'Orbitron',sans-serif; font-size:0.95rem; font-weight:700; color:var(--dark-text); margin-top:3px; }
+.vt-modal-footer { padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.vt-modal-close {
+  background:var(--dark-border); border:none; color:var(--dark-text);
+  padding:8px 20px; border-radius:3px; cursor:pointer; font-size:0.75rem;
+  font-family:'Orbitron',sans-serif; font-weight:700; letter-spacing:0.1em;
+  transition:background 0.15s;
+}
+.vt-modal-close:hover { background:var(--dark-accent); color:#000; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL 5 — DILUCIONES
+   ═══════════════════════════════════════════════════════════════════════════ */
+#panel-dilucion {
+  background: var(--light-bg);
+  background-image: repeating-linear-gradient(0deg,transparent,transparent 27px,var(--light-rule) 27px,var(--light-rule) 28px);
+  background-attachment:fixed;
+  min-height: calc(100vh - 57px);
+  color: var(--light-ink);
+  font-family: 'DM Mono', monospace;
+  padding: 40px 20px 60px;
+}
+.dil-section {
+  background:var(--light-paper); border:1.5px solid var(--light-ink);
+  border-radius:2px; padding:24px; margin-bottom:20px;
+  box-shadow:4px 4px 0 var(--light-ink);
+}
+.dil-title {
+  font-family:'Syne',sans-serif; font-size:0.7rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.15em; color:var(--light-dim);
+  margin-bottom:16px;
+}
+.dil-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.dil-field label {
+  display:block; font-size:0.65rem; text-transform:uppercase;
+  letter-spacing:0.12em; color:var(--light-dim); margin-bottom:6px;
+  font-family:'DM Mono',monospace;
+}
+.dil-field input, .dil-field select {
+  width:100%; background:transparent; border:none;
+  border-bottom:2px solid var(--light-rule); padding:8px 4px;
+  font-family:'Syne',sans-serif; font-size:1rem; font-weight:700;
+  color:var(--light-ink); outline:none; transition:border-color 0.2s;
+}
+.dil-field input:focus, .dil-field select:focus { border-color:#fbbf24; }
+.dil-unknown {
+  background:rgba(251,191,36,0.1); border:1.5px dashed #fbbf24;
+  border-radius:2px; padding:10px 16px; margin-top:16px;
+  font-size:0.8rem; color:#92400e; font-family:'DM Mono',monospace;
+}
+.dil-btn {
+  background:#1a1208; color:#f5f0e8; border:none; padding:12px 28px;
+  font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700;
+  letter-spacing:0.08em; cursor:pointer; border-radius:2px;
+  text-transform:uppercase; transition:background 0.15s; margin-top:16px;
+}
+.dil-btn:hover { background:#fbbf24; color:#1a1208; }
+.dil-result-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px; margin-top:16px;
+}
+.dil-result-card {
+  background:var(--light-paper); border:1.5px solid var(--light-ink);
+  border-radius:2px; padding:16px; box-shadow:3px 3px 0 var(--light-ink);
+}
+.dil-result-card.highlight { background:#1a1208; color:#f5f0e8; }
+.dil-result-card.highlight .dil-rc-lbl { color:rgba(255,255,255,0.5); }
+.dil-rc-lbl { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--light-dim); font-family:'DM Mono',monospace; margin-bottom:6px; }
+.dil-rc-val { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; }
+.dil-rc-unit { font-size:0.65rem; color:var(--light-dim); font-family:'DM Mono',monospace; margin-top:3px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL 6 — QUIZ
+   ═══════════════════════════════════════════════════════════════════════════ */
+#panel-quiz {
+  background: linear-gradient(135deg,#0a0e1a 0%,#0d0a1a 100%);
+  min-height: calc(100vh - 57px);
+  padding: 30px 20px 60px;
+  color: var(--dark-text);
+  display:flex; flex-direction:column; align-items:center;
+}
+.qz-container { max-width:560px; width:100%; }
+.qz-header { text-align:center; margin-bottom:30px; }
+.qz-header h1 {
+  font-family:'Orbitron',sans-serif; font-size:clamp(1.2rem,4vw,2rem);
+  font-weight:900; color:#f472b6; text-shadow:0 0 20px rgba(244,114,182,0.5);
+  letter-spacing:0.15em; margin-bottom:6px;
+}
+.qz-header p { font-size:0.72rem; color:var(--dark-dim); letter-spacing:0.2em; text-transform:uppercase; }
+.qz-start-card {
+  background:var(--dark-panel); border:1px solid var(--dark-border);
+  border-radius:8px; padding:32px; text-align:center;
+  box-shadow:0 0 40px rgba(244,114,182,0.1);
+}
+.qz-start-icon { font-size:4rem; display:block; margin-bottom:16px; }
+.qz-start-card h2 { font-family:'Orbitron',sans-serif; font-size:1.2rem; color:var(--dark-text); margin-bottom:12px; }
+.qz-start-card p { font-size:0.8rem; color:var(--dark-dim); margin-bottom:24px; line-height:1.6; font-family:'Share Tech Mono',monospace; }
+.qz-modes { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
+.qz-mode-btn {
+  padding:10px 20px; border-radius:4px; border:1px solid var(--dark-border);
+  background:transparent; color:var(--dark-dim); cursor:pointer;
+  font-family:'Orbitron',sans-serif; font-size:0.7rem; font-weight:700;
+  letter-spacing:0.1em; transition:all 0.2s;
+}
+.qz-mode-btn.selected, .qz-mode-btn:hover { background:#f472b6; color:#fff; border-color:#f472b6; }
+.qz-btn {
+  background:#f472b6; color:#fff; border:none; padding:14px 36px;
+  font-family:'Orbitron',sans-serif; font-size:0.9rem; font-weight:700;
+  letter-spacing:0.1em; cursor:pointer; border-radius:4px;
+  text-transform:uppercase; transition:all 0.15s;
+  box-shadow:0 0 20px rgba(244,114,182,0.4);
+}
+.qz-btn:hover { background:#ec4899; transform:translateY(-1px); }
+.qz-card {
+  background:var(--dark-panel); border:1px solid var(--dark-border);
+  border-radius:8px; padding:28px; animation:tFadeIn 0.3s ease;
+}
+.qz-progress-bar {
+  height:4px; background:var(--dark-border); border-radius:2px;
+  margin-bottom:20px; overflow:hidden;
+}
+.qz-progress-fill {
+  height:100%; background:linear-gradient(90deg,#f472b6,#a78bfa);
+  border-radius:2px; transition:width 0.4s ease;
+}
+.qz-meta {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:20px;
+}
+.qz-counter { font-size:0.7rem; color:var(--dark-dim); font-family:'Share Tech Mono',monospace; letter-spacing:0.1em; }
+.qz-score { font-family:'Orbitron',sans-serif; font-size:0.85rem; color:#f472b6; font-weight:700; }
+.qz-timer {
+  font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:700;
+  color:var(--dark-accent); background:rgba(0,212,255,0.05);
+  border:1px solid var(--dark-border); padding:4px 12px; border-radius:3px;
+}
+.qz-timer.urgent { color:#ff6b35; border-color:#ff6b35; animation:pulse 0.8s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.qz-question {
+  font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700;
+  color:var(--dark-text); margin-bottom:24px; line-height:1.4;
+  min-height:60px;
+}
+.qz-options { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+.qz-option {
+  background:rgba(30,58,95,0.3); border:1px solid var(--dark-border);
+  border-radius:4px; padding:14px 18px; cursor:pointer;
+  font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--dark-text);
+  transition:all 0.15s; text-align:left;
+}
+.qz-option:hover:not(.disabled) { border-color:#f472b6; background:rgba(244,114,182,0.08); }
+.qz-option.correct { background:rgba(52,211,153,0.15); border-color:#34d399; color:#34d399; }
+.qz-option.wrong   { background:rgba(255,107,53,0.12); border-color:#ff6b35; color:#ff6b35; }
+.qz-option.disabled { cursor:default; }
+.qz-feedback {
+  font-size:0.8rem; padding:12px 16px; border-radius:4px;
+  font-family:'Share Tech Mono',monospace; margin-bottom:16px;
+  min-height:40px; display:none;
+}
+.qz-feedback.show { display:block; }
+.qz-feedback.ok { background:rgba(52,211,153,0.1); color:#34d399; border:1px solid #34d399; }
+.qz-feedback.fail { background:rgba(255,107,53,0.1); color:#ff6b35; border:1px solid #ff6b35; }
+.qz-next-btn {
+  width:100%; background:var(--dark-border); color:var(--dark-text);
+  border:none; padding:12px; border-radius:4px; cursor:pointer;
+  font-family:'Orbitron',sans-serif; font-size:0.8rem; font-weight:700;
+  letter-spacing:0.1em; transition:background 0.15s; display:none;
+}
+.qz-next-btn.show { display:block; }
+.qz-next-btn:hover { background:#f472b6; }
+.qz-result-card {
+  background:var(--dark-panel); border:1px solid var(--dark-border);
+  border-radius:8px; padding:32px; text-align:center;
+  animation:tFadeIn 0.4s ease;
+}
+.qz-result-icon { font-size:4rem; display:block; margin-bottom:12px; }
+.qz-result-score {
+  font-family:'Orbitron',sans-serif; font-size:3rem; font-weight:900;
+  color:#f472b6; text-shadow:0 0 30px rgba(244,114,182,0.6);
+  margin-bottom:8px;
+}
+.qz-result-label { font-size:0.8rem; color:var(--dark-dim); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:24px; }
+.qz-result-msg { font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--dark-text); line-height:1.6; margin-bottom:24px; }
+.qz-retry-btn {
+  background:#f472b6; color:#fff; border:none; padding:12px 32px;
+  font-family:'Orbitron',sans-serif; font-size:0.85rem; font-weight:700;
+  letter-spacing:0.1em; cursor:pointer; border-radius:4px;
+  box-shadow:0 0 20px rgba(244,114,182,0.4); transition:all 0.15s;
+}
+.qz-retry-btn:hover { background:#ec4899; }
+
+
+.tab-icon { font-size: 1.1rem; }
+
+/* ── Panels ──────────────────────────────────────────────────────────────── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL 1 — TABLA PERIÓDICA (dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#panel-tabla {
+  background: var(--dark-bg);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(0,100,200,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,212,255,0.05) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0e1a 0%, #060810 100%);
+  min-height: calc(100vh - 57px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+  color: var(--dark-text);
+}
+
+#panel-tabla h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-align: center;
+  color: var(--dark-accent);
+  text-shadow: var(--dark-glow);
+  margin-bottom: 6px;
+}
+
+.t-subtitle {
+  font-size: 0.75rem;
+  color: var(--dark-dim);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-search-box {
+  width: 100%;
+  max-width: 520px;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.t-search-box input {
+  width: 100%;
+  background: var(--dark-panel);
+  border: 1px solid var(--dark-border);
+  border-radius: 4px;
+  padding: 14px 50px 14px 18px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  color: var(--dark-accent);
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  letter-spacing: 0.1em;
+}
+
+.t-search-box input:focus {
+  border-color: var(--dark-accent);
+  box-shadow: var(--dark-glow), inset 0 0 20px rgba(0,212,255,0.03);
+}
+
+.t-search-box input::placeholder { color: var(--dark-dim); }
+
+.t-search-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dark-dim);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+#t-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--dark-panel);
+  border: 1px solid var(--dark-border);
+  border-radius: 4px;
+  z-index: 100;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+}
+
+#t-suggestions.visible { display: block; }
+
+.t-sug-item {
+  padding: 10px 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(30,58,95,0.4);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-sug-item:last-child { border-bottom: none; }
+.t-sug-item:hover { background: rgba(0,212,255,0.07); }
+.t-sug-name { color: var(--dark-text); font-size: 0.9rem; }
+.t-sug-sym { color: var(--dark-accent); font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.9rem; }
+
+/* Element card */
+.t-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--dark-panel);
+  border: 1px solid var(--dark-border);
+  border-radius: 6px;
+  overflow: hidden;
+  display: none;
+  animation: tFadeIn 0.4s ease;
+}
+
+.t-card.visible { display: block; }
+
+@keyframes tFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.t-card-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  border-bottom: 1px solid var(--dark-border);
+  background: linear-gradient(135deg, rgba(0,212,255,0.05), transparent);
+}
+
+.t-el-box {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border: 2px solid var(--dark-accent);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--dark-glow);
+  position: relative;
+  background: rgba(0,212,255,0.04);
+}
+
+.t-el-number {
+  font-size: 0.65rem;
+  color: var(--dark-dim);
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  letter-spacing: 0.05em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-el-symbol {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--dark-accent);
+  text-shadow: var(--dark-glow);
+  line-height: 1;
+}
+
+.t-el-mass {
+  font-size: 0.6rem;
+  color: var(--dark-dim);
+  position: absolute;
+  bottom: 6px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-header-info h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark-text);
+  margin-bottom: 4px;
+  letter-spacing: 0.08em;
+}
+
+.t-header-info .t-category {
+  font-size: 0.72rem;
+  color: var(--dark-accent2);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-header-info .t-config {
+  font-size: 0.72rem;
+  color: var(--dark-dim);
+  margin-top: 6px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--dark-border);
+  border-bottom: 1px solid var(--dark-border);
+}
+
+.t-data-cell {
+  background: var(--dark-panel);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.t-data-cell::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+
+.t-cell-a::before  { background: var(--dark-accent); }
+.t-cell-z::before  { background: var(--dark-accent2); }
+.t-cell-uma::before{ background: var(--dark-accent3); }
+.t-cell-e::before  { background: #a78bfa; }
+.t-cell-p::before  { background: var(--dark-accent2); }
+.t-cell-n::before  { background: #64748b; }
+.t-cell-mabs::before{ background: var(--dark-accent3); }
+
+.t-data-cell:hover { background: rgba(0,212,255,0.04); }
+
+.t-cell-label {
+  font-size: 0.65rem;
+  color: var(--dark-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-cell-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark-text);
+}
+
+.t-cell-value.hl1 { color: var(--dark-accent); }
+.t-cell-value.hl2 { color: var(--dark-accent2); }
+.t-cell-value.hl3 { color: var(--dark-accent3); }
+.t-cell-value.hl4 { color: #a78bfa; }
+
+.t-cell-unit {
+  font-size: 0.65rem;
+  color: var(--dark-dim);
+  letter-spacing: 0.1em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-card-footer {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.t-footer-note {
+  font-size: 0.65rem;
+  color: var(--dark-dim);
+  letter-spacing: 0.1em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-tag {
+  font-size: 0.65rem;
+  color: var(--dark-accent);
+  border: 1px solid rgba(0,212,255,0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.1em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-empty {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--dark-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.t-empty-icon { font-size: 3rem; display: block; margin-bottom: 14px; opacity: 0.3; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL 2 — CALCULADORA MOLECULAR (light)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#panel-calc {
+  background: var(--light-bg);
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 27px,
+    var(--light-rule) 27px, var(--light-rule) 28px
+  );
+  background-attachment: fixed;
+  min-height: calc(100vh - 57px);
+  color: var(--light-ink);
+  font-family: 'DM Mono', monospace;
+  padding: 40px 20px 60px;
+}
+
+.c-container { max-width: 680px; margin: 0 auto; }
+
+.c-header {
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--light-ink);
+}
+
+.c-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--light-ink);
+}
+
+.c-header h1 span { color: var(--light-accent); }
+
+.c-tagline {
+  font-size: 0.75rem;
+  color: var(--light-dim);
+  margin-top: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+
+.c-input-section {
+  background: var(--light-paper);
+  border: 1.5px solid var(--light-ink);
+  border-radius: 2px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 4px 4px 0 var(--light-ink);
+}
+
+.c-input-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--light-dim);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.c-input-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+#c-formulaInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--light-ink);
+  padding: 10px 4px;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--light-ink);
+  outline: none;
+  letter-spacing: 0.05em;
+  transition: border-color 0.2s;
+}
+
+#c-formulaInput:focus { border-color: var(--light-accent); }
+#c-formulaInput::placeholder { color: var(--light-rule); font-weight: 400; }
+
+#c-calcBtn {
+  background: var(--light-ink);
+  color: var(--light-bg);
+  border: none;
+  padding: 10px 22px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+#c-calcBtn:hover { background: var(--light-accent); }
+#c-calcBtn:active { transform: scale(0.97); }
+
+.c-examples {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.c-example-chip {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border: 1px solid var(--light-rule);
+  border-radius: 20px;
+  color: var(--light-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: transparent;
+  font-family: 'DM Mono', monospace;
+}
+
+.c-example-chip:hover {
+  border-color: var(--light-accent2);
+  color: var(--light-accent2);
+  background: rgba(26,107,200,0.05);
+}
+
+.c-error-msg {
+  background: #fff0ee;
+  border: 1.5px solid var(--light-accent);
+  border-radius: 2px;
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  color: var(--light-accent);
+  margin-bottom: 20px;
+  display: none;
+}
+
+#c-results { display: none; }
+
+.c-result-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--light-dim);
+  margin-bottom: 10px;
+}
+
+.c-formula-display {
+  background: var(--light-paper);
+  border: 1.5px solid var(--light-ink);
+  border-radius: 2px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: 4px 4px 0 var(--light-ink);
+}
+
+.c-formula-display .c-mol-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--light-ink);
+}
+
+.c-formula-display .c-mol-formula {
+  font-size: 0.85rem;
+  color: var(--light-dim);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+
+.c-steps-card {
+  background: var(--light-paper);
+  border: 1.5px solid var(--light-ink);
+  border-radius: 2px;
+  margin-bottom: 16px;
+  box-shadow: 4px 4px 0 var(--light-ink);
+  overflow: hidden;
+}
+
+.c-steps-header {
+  background: var(--light-ink);
+  color: var(--light-bg);
+  padding: 10px 20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.c-steps-col-header {
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr 2fr;
+  padding: 8px 20px;
+  background: rgba(26,18,8,0.04);
+  border-bottom: 1px solid var(--light-rule);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--light-dim);
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+}
+
+.c-steps-col-header span:not(:first-child) { text-align: right; }
+
+.c-step-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr 2fr;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px dashed var(--light-rule);
+  gap: 8px;
+  animation: cSlideIn 0.3s ease both;
+}
+
+@keyframes cSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.c-step-row:last-child { border-bottom: none; }
+
+.c-step-element {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.c-el-badge {
+  width: 36px;
+  height: 36px;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.c-step-el-name { font-size: 0.75rem; color: var(--light-ink2); font-family: 'DM Mono', monospace; }
+.c-step-el-sub  { font-size: 0.65rem; color: var(--light-dim); font-family: 'DM Mono', monospace; }
+
+.c-step-col { text-align: right; }
+.c-step-col .c-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--light-ink);
+}
+.c-step-col .c-lbl { font-size: 0.6rem; color: var(--light-dim); letter-spacing: 0.08em; font-family: 'DM Mono', monospace; }
+
+/* Colors per element */
+.cc-0 { color: var(--light-accent); }
+.cc-1 { color: var(--light-accent2); }
+.cc-2 { color: var(--light-accent3); }
+.cc-3 { color: var(--light-accent4); }
+.cc-4 { color: #c87a1a; }
+.cc-5 { color: #1a8ac8; }
+.cc-6 { color: #6a8a1a; }
+.cc-7 { color: #c81a6a; }
+
+.c-equation-card {
+  background: var(--light-highlight);
+  border: 1.5px solid var(--light-ink);
+  border-radius: 2px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-size: 0.8rem;
+  color: var(--light-ink2);
+  box-shadow: 4px 4px 0 var(--light-ink);
+}
+
+.c-eq-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+
+.c-eq-op { color: var(--light-dim); margin: 0 2px; }
+.c-eq-result { color: var(--light-accent); font-weight: 600; }
+
+.c-final-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.c-final-card {
+  background: var(--light-paper);
+  border: 1.5px solid var(--light-ink);
+  border-radius: 2px;
+  padding: 20px;
+  box-shadow: 4px 4px 0 var(--light-ink);
+}
+
+.c-final-card.c-accent { background: var(--light-ink); color: var(--light-bg); }
+.c-final-card.c-accent .c-fc-label { color: rgba(255,255,255,0.5); }
+.c-final-card.c-accent .c-fc-value { color: var(--light-bg); }
+
+.c-fc-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--light-dim);
+  margin-bottom: 8px;
+  font-family: 'DM Mono', monospace;
+}
+
+.c-fc-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--light-ink);
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+.c-fc-unit {
+  font-size: 0.7rem;
+  color: var(--light-dim);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+
+.c-comp-section {
+  background: var(--light-paper);
+  border: 1.5px solid var(--light-ink);
+  border-radius: 2px;
+  padding: 20px 24px;
+  box-shadow: 4px 4px 0 var(--light-ink);
+  margin-bottom: 20px;
+}
+
+.c-comp-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--light-dim);
+  margin-bottom: 14px;
+}
+
+.c-comp-bar-row { margin-bottom: 10px; }
+
+.c-comp-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.c-comp-el-name { font-size: 0.8rem; color: var(--light-ink); font-family: 'DM Mono', monospace; }
+.c-comp-pct { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; }
+
+.c-comp-bar-track {
+  height: 8px;
+  background: var(--light-rule);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.c-comp-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+
+.c-mole-section {
+  background: var(--light-paper);
+  border: 1.5px dashed var(--light-rule);
+  border-radius: 2px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+}
+
+.c-mole-title {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--light-dim);
+  margin-bottom: 10px;
+  font-family: 'DM Mono', monospace;
+}
+
+.c-mole-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.c-mole-item { font-size: 0.8rem; }
+.c-mole-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--light-ink);
+}
+.c-mole-lbl { font-size: 0.65rem; color: var(--light-dim); font-family: 'DM Mono', monospace; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--dark-panel); }
+::-webkit-scrollbar-thumb { background: var(--dark-border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ── Tab bar ──────────────────────────────────────────────────────────── -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-tabla" onclick="switchTab('tabla')">
+    <span class="tab-icon">⚛</span> Elementos
+  </button>
+  <button class="tab-btn tab-calc" id="tab-calc" onclick="switchTab('calc')">
+    <span class="tab-icon">⚗</span> Calculadora
+  </button>
+  <button class="tab-btn tab-conv" id="tab-conv" onclick="switchTab('conv')">
+    <span class="tab-icon">⇄</span> Conversor
+  </button>
+  <button class="tab-btn tab-visual" id="tab-visual" onclick="switchTab('visual')">
+    <span class="tab-icon">🗂</span> Tabla Visual
+  </button>
+  <button class="tab-btn tab-dilucion" id="tab-dilucion" onclick="switchTab('dilucion')">
+    <span class="tab-icon">🧪</span> Diluciones
+  </button>
+  <button class="tab-btn tab-quiz" id="tab-quiz" onclick="switchTab('quiz')">
+    <span class="tab-icon">🎯</span> Quiz
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PANEL 1 — TABLA PERIÓDICA
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-tabla" class="panel active">
+  <h1>⚛ CALCULADORA DE ELEMENTOS</h1>
+  <p class="t-subtitle">Tabla Periódica · Datos Atómicos</p>
+
+  <div class="t-search-box">
+    <input type="text" id="t-searchInput" placeholder="Nombre, símbolo o número atómico..." autocomplete="off">
+    <span class="t-search-icon">⌕</span>
+    <div id="t-suggestions"></div>
+  </div>
+
+  <div class="t-card" id="t-resultCard">
+    <div class="t-card-header">
+      <div class="t-el-box">
+        <span class="t-el-number" id="t-elZ">—</span>
+        <span class="t-el-symbol" id="t-elSym">—</span>
+        <span class="t-el-mass" id="t-elMassSmall">—</span>
+      </div>
+      <div class="t-header-info">
+        <h2 id="t-elName">—</h2>
+        <div class="t-category" id="t-elCategory">—</div>
+        <div class="t-config" id="t-elConfig">—</div>
+      </div>
+    </div>
+
+    <div class="t-data-grid">
+      <div class="t-data-cell t-cell-a">
+        <span class="t-cell-label">Número de Masa (A)</span>
+        <span class="t-cell-value hl1" id="t-dA">—</span>
+        <span class="t-cell-unit">A = Z + N</span>
+      </div>
+      <div class="t-data-cell t-cell-z">
+        <span class="t-cell-label">Número Atómico (Z)</span>
+        <span class="t-cell-value hl2" id="t-dZ">—</span>
+        <span class="t-cell-unit">protones en el núcleo</span>
+      </div>
+      <div class="t-data-cell t-cell-uma">
+        <span class="t-cell-label">Masa Atómica (UMA)</span>
+        <span class="t-cell-value hl3" id="t-dUMA">—</span>
+        <span class="t-cell-unit">u.m.a.</span>
+      </div>
+      <div class="t-data-cell t-cell-e">
+        <span class="t-cell-label">Electrones</span>
+        <span class="t-cell-value hl4" id="t-dE">—</span>
+        <span class="t-cell-unit">e⁻ (átomo neutro)</span>
+      </div>
+      <div class="t-data-cell t-cell-p">
+        <span class="t-cell-label">Protones</span>
+        <span class="t-cell-value hl2" id="t-dP">—</span>
+        <span class="t-cell-unit">p⁺ en el núcleo</span>
+      </div>
+      <div class="t-data-cell t-cell-n">
+        <span class="t-cell-label">Neutrones</span>
+        <span class="t-cell-value" id="t-dN">—</span>
+        <span class="t-cell-unit">n⁰ = A − Z</span>
+      </div>
+      <div class="t-data-cell t-cell-mabs" style="grid-column: 1 / -1;">
+        <span class="t-cell-label">Masa Absoluta</span>
+        <span class="t-cell-value hl3" id="t-dMabs">—</span>
+        <span class="t-cell-unit">gramos (masa × 1.66054×10⁻²⁴ g)</span>
+      </div>
+      <div class="t-data-cell t-cell-en">
+        <span class="t-cell-label">Electronegatividad (Pauling)</span>
+        <span class="t-cell-value" id="t-dEN" style="color:#f0abfc">—</span>
+        <span class="t-cell-unit">escala de Pauling</span>
+      </div>
+      <div class="t-data-cell t-cell-state">
+        <span class="t-cell-label">Estado (25 °C, 1 atm)</span>
+        <span class="t-cell-value" id="t-dState" style="color:#67e8f9">—</span>
+        <span class="t-cell-unit">condiciones normales</span>
+      </div>
+    </div>
+
+    <div class="t-card-footer">
+      <span class="t-footer-note" id="t-footerNote">—</span>
+      <span class="t-tag" id="t-elPeriod">—</span>
+    </div>
+  </div>
+
+  <div class="t-empty" id="t-emptyState">
+    <span class="t-empty-icon">⚛</span>
+    Escribí el nombre, símbolo o número atómico de un elemento
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PANEL 2 — CALCULADORA MOLECULAR
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-calc" class="panel">
+  <div class="c-container">
+
+    <header class="c-header">
+      <h1>Calculadora<br><span>Química</span></h1>
+      <p class="c-tagline">Composición molecular · UMA · Masa absoluta · Porcentaje másico</p>
+    </header>
+
+    <div class="c-input-section">
+      <span class="c-input-label">Ingresá la fórmula molecular</span>
+      <div class="c-input-wrap">
+        <input type="text" id="c-formulaInput" placeholder="ej: C2H6O" autocomplete="off" spellcheck="false">
+        <button id="c-calcBtn">Calcular</button>
+      </div>
+      <div class="c-examples">
+        <span class="c-input-label" style="width:100%; margin-bottom:6px;">Ejemplos rápidos:</span>
+        <button class="c-example-chip" onclick="cLoadExample('C2H6O')">C₂H₆O — Etanol</button>
+        <button class="c-example-chip" onclick="cLoadExample('H2O')">H₂O — Agua</button>
+        <button class="c-example-chip" onclick="cLoadExample('NaCl')">NaCl — Sal</button>
+        <button class="c-example-chip" onclick="cLoadExample('C6H12O6')">C₆H₁₂O₆ — Glucosa</button>
+        <button class="c-example-chip" onclick="cLoadExample('CO2')">CO₂ — Dióxido de carbono</button>
+        <button class="c-example-chip" onclick="cLoadExample('H2SO4')">H₂SO₄ — Ácido sulfúrico</button>
+        <button class="c-example-chip" onclick="cLoadExample('NH3')">NH₃ — Amoníaco</button>
+        <button class="c-example-chip" onclick="cLoadExample('C8H18')">C₈H₁₈ — Octano</button>
+      </div>
+    </div>
+
+    <div class="c-error-msg" id="c-errorMsg"></div>
+
+    <div id="c-results" style="display:none;">
+      <div class="c-formula-display">
+        <div class="c-mol-name" id="c-rFormula"></div>
+        <div class="c-mol-formula" id="c-rFormulaNote"></div>
+      </div>
+
+      <div class="c-steps-card">
+        <div class="c-steps-header">① Paso a paso — Masa por elemento</div>
+        <div class="c-steps-col-header">
+          <span>Elemento</span>
+          <span>UMA unit.</span>
+          <span>Cantidad</span>
+          <span>Subtotal</span>
+        </div>
+        <div id="c-stepsBody"></div>
+      </div>
+
+      <div class="c-equation-card">
+        <div class="c-result-title">② Ecuación de cálculo</div>
+        <div class="c-eq-line" id="c-equationLine"></div>
+      </div>
+
+      <div class="c-final-grid">
+        <div class="c-final-card c-accent">
+          <div class="c-fc-label">Masa Molar (UMA)</div>
+          <div class="c-fc-value" id="c-rUMA">—</div>
+          <div class="c-fc-unit">u.m.a.</div>
+        </div>
+        <div class="c-final-card">
+          <div class="c-fc-label">Masa Absoluta</div>
+          <div class="c-fc-value" id="c-rMabs">—</div>
+          <div class="c-fc-unit">gramos / molécula</div>
+        </div>
+      </div>
+
+      <div class="c-comp-section">
+        <div class="c-comp-title">③ Composición másica porcentual</div>
+        <div id="c-compBars"></div>
+      </div>
+
+      <div class="c-mole-section">
+        <div class="c-mole-title">④ Datos adicionales por mol</div>
+        <div class="c-mole-grid" id="c-moleData"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PANEL 3 — CONVERSOR DE MOLES
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-conv" class="panel">
+  <div class="c-container" style="padding-top:40px;padding-bottom:60px;">
+
+    <header class="c-header" style="border-color:#a78bfa">
+      <h1 style="color:#1a1208">Conversor<br><span style="color:#7c3aed">de Moles</span></h1>
+      <p class="c-tagline">Moles ↔ Gramos ↔ Moléculas · Usando la masa molar</p>
+    </header>
+
+    <div class="c-input-section" style="border-color:#7c3aed;box-shadow:4px 4px 0 #7c3aed">
+      <span class="c-input-label">Fórmula o símbolo del elemento/molécula</span>
+      <div class="c-input-wrap">
+        <input type="text" id="v-formulaInput" placeholder="ej: H2O, NaCl, Fe, C6H12O6" autocomplete="off" spellcheck="false"
+          style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;background:transparent;border:none;border-bottom:2px solid #7c3aed;padding:10px 4px;color:#1a1208;outline:none;flex:1;">
+        <button id="v-calcBtn"
+          style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;border-radius:2px;text-transform:uppercase;">
+          Calcular
+        </button>
+      </div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <span class="c-input-label">Valor a convertir</span>
+          <input type="number" id="v-amount" placeholder="ej: 2.5" step="any" min="0"
+            style="width:100%;background:transparent;border:none;border-bottom:2px solid #d4c9b0;padding:8px 4px;font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#1a1208;outline:none;transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#d4c9b0'">
+        </div>
+        <div>
+          <span class="c-input-label">Unidad de entrada</span>
+          <select id="v-unit"
+            style="width:100%;background:#fdfaf4;border:none;border-bottom:2px solid #d4c9b0;padding:8px 4px;font-family:'DM Mono',monospace;font-size:0.95rem;color:#1a1208;outline:none;cursor:pointer;">
+            <option value="mol">Moles (mol)</option>
+            <option value="g">Gramos (g)</option>
+            <option value="mol">Moléculas (cantidad)</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <span class="c-input-label">Unidad de entrada</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.85rem;color:#3d3020;">
+            <input type="radio" name="v-unitR" value="mol" checked style="accent-color:#7c3aed"> Moles
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.85rem;color:#3d3020;">
+            <input type="radio" name="v-unitR" value="g" style="accent-color:#7c3aed"> Gramos
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.85rem;color:#3d3020;">
+            <input type="radio" name="v-unitR" value="molecules" style="accent-color:#7c3aed"> Moléculas
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;">
+        <span class="c-input-label" style="width:100%;margin-bottom:4px;">Ejemplos rápidos:</span>
+        <button class="c-example-chip" onclick="vLoadExample('H2O','1','mol')" style="border-color:#a78bfa;color:#7c3aed">1 mol H₂O</button>
+        <button class="c-example-chip" onclick="vLoadExample('NaCl','58.44','g')" style="border-color:#a78bfa;color:#7c3aed">58.44 g NaCl</button>
+        <button class="c-example-chip" onclick="vLoadExample('Fe','2','mol')" style="border-color:#a78bfa;color:#7c3aed">2 mol Fe</button>
+        <button class="c-example-chip" onclick="vLoadExample('C6H12O6','0.5','mol')" style="border-color:#a78bfa;color:#7c3aed">0.5 mol Glucosa</button>
+        <button class="c-example-chip" onclick="vLoadExample('CO2','44','g')" style="border-color:#a78bfa;color:#7c3aed">44 g CO₂</button>
+      </div>
+    </div>
+
+    <div id="v-error" style="display:none;background:#fff0ee;border:1.5px solid #c8401a;border-radius:2px;padding:12px 16px;font-size:0.8rem;color:#c8401a;margin-bottom:20px;"></div>
+
+    <div id="v-results" style="display:none;">
+      <div style="background:#fdfaf4;border:1.5px solid #7c3aed;border-radius:2px;padding:20px 24px;margin-bottom:16px;box-shadow:4px 4px 0 #7c3aed;">
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;color:#9a8e7a;margin-bottom:8px;font-family:'DM Mono',monospace;">Sustancia</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#1a1208;" id="v-rFormula"></div>
+        <div style="font-size:0.8rem;color:#9a8e7a;font-family:'DM Mono',monospace;margin-top:4px;" id="v-rMasaMolar"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div style="background:#7c3aed;color:#fff;border-radius:2px;padding:20px;box-shadow:4px 4px 0 #4c1d95;">
+          <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.6);margin-bottom:8px;font-family:'DM Mono',monospace;">Moles</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;" id="v-rMol">—</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);font-family:'DM Mono',monospace;">mol</div>
+        </div>
+        <div style="background:#fdfaf4;border:1.5px solid #1a1208;border-radius:2px;padding:20px;box-shadow:4px 4px 0 #1a1208;">
+          <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:#9a8e7a;margin-bottom:8px;font-family:'DM Mono',monospace;">Gramos</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:#1a1208;" id="v-rGrams">—</div>
+          <div style="font-size:0.7rem;color:#9a8e7a;font-family:'DM Mono',monospace;">g</div>
+        </div>
+        <div style="background:#fdfaf4;border:1.5px solid #1a1208;border-radius:2px;padding:20px;box-shadow:4px 4px 0 #1a1208;">
+          <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:#9a8e7a;margin-bottom:8px;font-family:'DM Mono',monospace;">Moléculas</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#1a1208;word-break:break-all;" id="v-rMolecules">—</div>
+          <div style="font-size:0.7rem;color:#9a8e7a;font-family:'DM Mono',monospace;">unidades</div>
+        </div>
+      </div>
+
+      <div style="background:#fff3a0;border:1.5px solid #1a1208;border-radius:2px;padding:16px 20px;box-shadow:4px 4px 0 #1a1208;font-family:'DM Mono',monospace;font-size:0.82rem;color:#3d3020;" id="v-rFormula2"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── Tab switching is defined after all panels are loaded ────────────────── */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TABLA PERIÓDICA — Logic
+   ══════════════════════════════════════════════════════════════════════════ */
+const elements = [
+  { z:1,   sym:"H",  name:"Hidrógeno",    mass:1.008,    cat:"No metal",              config:"1s¹",                  period:"Período 1", en:2.20, state:"Gas" },
+  { z:2,   sym:"He", name:"Helio",        mass:4.0026,   cat:"Gas noble",             config:"1s²",                  period:"Período 1", en:null, state:"Gas" },
+  { z:3,   sym:"Li", name:"Litio",        mass:6.941,    cat:"Metal alcalino",        config:"[He] 2s¹",             period:"Período 2", en:0.98, state:"Sólido" },
+  { z:4,   sym:"Be", name:"Berilio",      mass:9.0122,   cat:"Metal alcalinotérreo",  config:"[He] 2s²",             period:"Período 2", en:1.57, state:"Sólido" },
+  { z:5,   sym:"B",  name:"Boro",         mass:10.811,   cat:"Metaloide",             config:"[He] 2s² 2p¹",         period:"Período 2", en:2.04, state:"Sólido" },
+  { z:6,   sym:"C",  name:"Carbono",      mass:12.011,   cat:"No metal",              config:"[He] 2s² 2p²",         period:"Período 2", en:2.55, state:"Sólido" },
+  { z:7,   sym:"N",  name:"Nitrógeno",    mass:14.007,   cat:"No metal",              config:"[He] 2s² 2p³",         period:"Período 2", en:3.04, state:"Gas" },
+  { z:8,   sym:"O",  name:"Oxígeno",      mass:15.999,   cat:"No metal",              config:"[He] 2s² 2p⁴",         period:"Período 2", en:3.44, state:"Gas" },
+  { z:9,   sym:"F",  name:"Flúor",        mass:18.998,   cat:"Halógeno",              config:"[He] 2s² 2p⁵",         period:"Período 2", en:3.98, state:"Gas" },
+  { z:10,  sym:"Ne", name:"Neón",         mass:20.180,   cat:"Gas noble",             config:"[He] 2s² 2p⁶",         period:"Período 2", en:null, state:"Gas" },
+  { z:11,  sym:"Na", name:"Sodio",        mass:22.990,   cat:"Metal alcalino",        config:"[Ne] 3s¹",             period:"Período 3", en:0.93, state:"Sólido" },
+  { z:12,  sym:"Mg", name:"Magnesio",     mass:24.305,   cat:"Metal alcalinotérreo",  config:"[Ne] 3s²",             period:"Período 3", en:1.31, state:"Sólido" },
+  { z:13,  sym:"Al", name:"Aluminio",     mass:26.982,   cat:"Metal",                 config:"[Ne] 3s² 3p¹",         period:"Período 3", en:1.61, state:"Sólido" },
+  { z:14,  sym:"Si", name:"Silicio",      mass:28.086,   cat:"Metaloide",             config:"[Ne] 3s² 3p²",         period:"Período 3", en:1.90, state:"Sólido" },
+  { z:15,  sym:"P",  name:"Fósforo",      mass:30.974,   cat:"No metal",              config:"[Ne] 3s² 3p³",         period:"Período 3", en:2.19, state:"Sólido" },
+  { z:16,  sym:"S",  name:"Azufre",       mass:32.06,    cat:"No metal",              config:"[Ne] 3s² 3p⁴",         period:"Período 3", en:2.58, state:"Sólido" },
+  { z:17,  sym:"Cl", name:"Cloro",        mass:35.45,    cat:"Halógeno",              config:"[Ne] 3s² 3p⁵",         period:"Período 3", en:3.16, state:"Gas" },
+  { z:18,  sym:"Ar", name:"Argón",        mass:39.948,   cat:"Gas noble",             config:"[Ne] 3s² 3p⁶",         period:"Período 3", en:null, state:"Gas" },
+  { z:19,  sym:"K",  name:"Potasio",      mass:39.098,   cat:"Metal alcalino",        config:"[Ar] 4s¹",             period:"Período 4", en:0.82, state:"Sólido" },
+  { z:20,  sym:"Ca", name:"Calcio",       mass:40.078,   cat:"Metal alcalinotérreo",  config:"[Ar] 4s²",             period:"Período 4", en:1.00, state:"Sólido" },
+  { z:21,  sym:"Sc", name:"Escandio",     mass:44.956,   cat:"Metal de transición",   config:"[Ar] 3d¹ 4s²",         period:"Período 4", en:1.36, state:"Sólido" },
+  { z:22,  sym:"Ti", name:"Titanio",      mass:47.867,   cat:"Metal de transición",   config:"[Ar] 3d² 4s²",         period:"Período 4", en:1.54, state:"Sólido" },
+  { z:23,  sym:"V",  name:"Vanadio",      mass:50.942,   cat:"Metal de transición",   config:"[Ar] 3d³ 4s²",         period:"Período 4", en:1.63, state:"Sólido" },
+  { z:24,  sym:"Cr", name:"Cromo",        mass:51.996,   cat:"Metal de transición",   config:"[Ar] 3d⁵ 4s¹",         period:"Período 4", en:1.66, state:"Sólido" },
+  { z:25,  sym:"Mn", name:"Manganeso",    mass:54.938,   cat:"Metal de transición",   config:"[Ar] 3d⁵ 4s²",         period:"Período 4", en:1.55, state:"Sólido" },
+  { z:26,  sym:"Fe", name:"Hierro",       mass:55.845,   cat:"Metal de transición",   config:"[Ar] 3d⁶ 4s²",         period:"Período 4", en:1.83, state:"Sólido" },
+  { z:27,  sym:"Co", name:"Cobalto",      mass:58.933,   cat:"Metal de transición",   config:"[Ar] 3d⁷ 4s²",         period:"Período 4", en:1.88, state:"Sólido" },
+  { z:28,  sym:"Ni", name:"Níquel",       mass:58.693,   cat:"Metal de transición",   config:"[Ar] 3d⁸ 4s²",         period:"Período 4", en:1.91, state:"Sólido" },
+  { z:29,  sym:"Cu", name:"Cobre",        mass:63.546,   cat:"Metal de transición",   config:"[Ar] 3d¹⁰ 4s¹",        period:"Período 4", en:1.90, state:"Sólido" },
+  { z:30,  sym:"Zn", name:"Zinc",         mass:65.38,    cat:"Metal de transición",   config:"[Ar] 3d¹⁰ 4s²",        period:"Período 4", en:1.65, state:"Sólido" },
+  { z:31,  sym:"Ga", name:"Galio",        mass:69.723,   cat:"Metal",                 config:"[Ar] 3d¹⁰ 4s² 4p¹",    period:"Período 4", en:1.81, state:"Sólido" },
+  { z:32,  sym:"Ge", name:"Germanio",     mass:72.630,   cat:"Metaloide",             config:"[Ar] 3d¹⁰ 4s² 4p²",    period:"Período 4", en:2.01, state:"Sólido" },
+  { z:33,  sym:"As", name:"Arsénico",     mass:74.922,   cat:"Metaloide",             config:"[Ar] 3d¹⁰ 4s² 4p³",    period:"Período 4", en:2.18, state:"Sólido" },
+  { z:34,  sym:"Se", name:"Selenio",      mass:78.971,   cat:"No metal",              config:"[Ar] 3d¹⁰ 4s² 4p⁴",    period:"Período 4", en:2.55, state:"Sólido" },
+  { z:35,  sym:"Br", name:"Bromo",        mass:79.904,   cat:"Halógeno",              config:"[Ar] 3d¹⁰ 4s² 4p⁵",    period:"Período 4", en:2.96, state:"Líquido" },
+  { z:36,  sym:"Kr", name:"Kriptón",      mass:83.798,   cat:"Gas noble",             config:"[Ar] 3d¹⁰ 4s² 4p⁶",    period:"Período 4", en:3.00, state:"Gas" },
+  { z:37,  sym:"Rb", name:"Rubidio",      mass:85.468,   cat:"Metal alcalino",        config:"[Kr] 5s¹",             period:"Período 5", en:0.82, state:"Sólido" },
+  { z:38,  sym:"Sr", name:"Estroncio",    mass:87.62,    cat:"Metal alcalinotérreo",  config:"[Kr] 5s²",             period:"Período 5", en:0.95, state:"Sólido" },
+  { z:39,  sym:"Y",  name:"Itrio",        mass:88.906,   cat:"Metal de transición",   config:"[Kr] 4d¹ 5s²",         period:"Período 5", en:1.22, state:"Sólido" },
+  { z:40,  sym:"Zr", name:"Zirconio",     mass:91.224,   cat:"Metal de transición",   config:"[Kr] 4d² 5s²",         period:"Período 5", en:1.33, state:"Sólido" },
+  { z:41,  sym:"Nb", name:"Niobio",       mass:92.906,   cat:"Metal de transición",   config:"[Kr] 4d⁴ 5s¹",         period:"Período 5", en:1.60, state:"Sólido" },
+  { z:42,  sym:"Mo", name:"Molibdeno",    mass:95.96,    cat:"Metal de transición",   config:"[Kr] 4d⁵ 5s¹",         period:"Período 5", en:2.16, state:"Sólido" },
+  { z:43,  sym:"Tc", name:"Tecnecio",     mass:98,       cat:"Metal de transición",   config:"[Kr] 4d⁵ 5s²",         period:"Período 5", en:1.90, state:"Sólido" },
+  { z:44,  sym:"Ru", name:"Rutenio",      mass:101.07,   cat:"Metal de transición",   config:"[Kr] 4d⁷ 5s¹",         period:"Período 5", en:2.20, state:"Sólido" },
+  { z:45,  sym:"Rh", name:"Rodio",        mass:102.906,  cat:"Metal de transición",   config:"[Kr] 4d⁸ 5s¹",         period:"Período 5", en:2.28, state:"Sólido" },
+  { z:46,  sym:"Pd", name:"Paladio",      mass:106.42,   cat:"Metal de transición",   config:"[Kr] 4d¹⁰",            period:"Período 5", en:2.20, state:"Sólido" },
+  { z:47,  sym:"Ag", name:"Plata",        mass:107.868,  cat:"Metal de transición",   config:"[Kr] 4d¹⁰ 5s¹",        period:"Período 5", en:1.93, state:"Sólido" },
+  { z:48,  sym:"Cd", name:"Cadmio",       mass:112.411,  cat:"Metal de transición",   config:"[Kr] 4d¹⁰ 5s²",        period:"Período 5", en:1.69, state:"Sólido" },
+  { z:49,  sym:"In", name:"Indio",        mass:114.818,  cat:"Metal",                 config:"[Kr] 4d¹⁰ 5s² 5p¹",    period:"Período 5", en:1.78, state:"Sólido" },
+  { z:50,  sym:"Sn", name:"Estaño",       mass:118.710,  cat:"Metal",                 config:"[Kr] 4d¹⁰ 5s² 5p²",    period:"Período 5", en:1.96, state:"Sólido" },
+  { z:51,  sym:"Sb", name:"Antimonio",    mass:121.760,  cat:"Metaloide",             config:"[Kr] 4d¹⁰ 5s² 5p³",    period:"Período 5", en:2.05, state:"Sólido" },
+  { z:52,  sym:"Te", name:"Telurio",      mass:127.60,   cat:"Metaloide",             config:"[Kr] 4d¹⁰ 5s² 5p⁴",    period:"Período 5", en:2.10, state:"Sólido" },
+  { z:53,  sym:"I",  name:"Yodo",         mass:126.904,  cat:"Halógeno",              config:"[Kr] 4d¹⁰ 5s² 5p⁵",    period:"Período 5", en:2.66, state:"Sólido" },
+  { z:54,  sym:"Xe", name:"Xenón",        mass:131.293,  cat:"Gas noble",             config:"[Kr] 4d¹⁰ 5s² 5p⁶",    period:"Período 5", en:2.60, state:"Gas" },
+  { z:55,  sym:"Cs", name:"Cesio",        mass:132.905,  cat:"Metal alcalino",        config:"[Xe] 6s¹",             period:"Período 6", en:0.79, state:"Sólido" },
+  { z:56,  sym:"Ba", name:"Bario",        mass:137.327,  cat:"Metal alcalinotérreo",  config:"[Xe] 6s²",             period:"Período 6", en:0.89, state:"Sólido" },
+  { z:57,  sym:"La", name:"Lantano",      mass:138.905,  cat:"Lantánido",             config:"[Xe] 5d¹ 6s²",         period:"Período 6", en:1.10, state:"Sólido" },
+  { z:58,  sym:"Ce", name:"Cerio",        mass:140.116,  cat:"Lantánido",             config:"[Xe] 4f¹ 5d¹ 6s²",     period:"Período 6", en:1.12, state:"Sólido" },
+  { z:59,  sym:"Pr", name:"Praseodimio",  mass:140.908,  cat:"Lantánido",             config:"[Xe] 4f³ 6s²",         period:"Período 6", en:1.13, state:"Sólido" },
+  { z:60,  sym:"Nd", name:"Neodimio",     mass:144.242,  cat:"Lantánido",             config:"[Xe] 4f⁴ 6s²",         period:"Período 6", en:1.14, state:"Sólido" },
+  { z:61,  sym:"Pm", name:"Prometio",     mass:145,      cat:"Lantánido",             config:"[Xe] 4f⁵ 6s²",         period:"Período 6", en:1.13, state:"Sólido" },
+  { z:62,  sym:"Sm", name:"Samario",      mass:150.36,   cat:"Lantánido",             config:"[Xe] 4f⁶ 6s²",         period:"Período 6", en:1.17, state:"Sólido" },
+  { z:63,  sym:"Eu", name:"Europio",      mass:151.964,  cat:"Lantánido",             config:"[Xe] 4f⁷ 6s²",         period:"Período 6", en:1.20, state:"Sólido" },
+  { z:64,  sym:"Gd", name:"Gadolinio",    mass:157.25,   cat:"Lantánido",             config:"[Xe] 4f⁷ 5d¹ 6s²",     period:"Período 6", en:1.20, state:"Sólido" },
+  { z:65,  sym:"Tb", name:"Terbio",       mass:158.925,  cat:"Lantánido",             config:"[Xe] 4f⁹ 6s²",         period:"Período 6", en:1.20, state:"Sólido" },
+  { z:66,  sym:"Dy", name:"Disprosio",    mass:162.500,  cat:"Lantánido",             config:"[Xe] 4f¹⁰ 6s²",        period:"Período 6", en:1.22, state:"Sólido" },
+  { z:67,  sym:"Ho", name:"Holmio",       mass:164.930,  cat:"Lantánido",             config:"[Xe] 4f¹¹ 6s²",        period:"Período 6", en:1.23, state:"Sólido" },
+  { z:68,  sym:"Er", name:"Erbio",        mass:167.259,  cat:"Lantánido",             config:"[Xe] 4f¹² 6s²",        period:"Período 6", en:1.24, state:"Sólido" },
+  { z:69,  sym:"Tm", name:"Tulio",        mass:168.934,  cat:"Lantánido",             config:"[Xe] 4f¹³ 6s²",        period:"Período 6", en:1.25, state:"Sólido" },
+  { z:70,  sym:"Yb", name:"Iterbio",      mass:173.054,  cat:"Lantánido",             config:"[Xe] 4f¹⁴ 6s²",        period:"Período 6", en:1.10, state:"Sólido" },
+  { z:71,  sym:"Lu", name:"Lutecio",      mass:174.967,  cat:"Lantánido",             config:"[Xe] 4f¹⁴ 5d¹ 6s²",    period:"Período 6", en:1.27, state:"Sólido" },
+  { z:72,  sym:"Hf", name:"Hafnio",       mass:178.49,   cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d² 6s²",    period:"Período 6", en:1.30, state:"Sólido" },
+  { z:73,  sym:"Ta", name:"Tántalo",      mass:180.948,  cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d³ 6s²",    period:"Período 6", en:1.50, state:"Sólido" },
+  { z:74,  sym:"W",  name:"Wolframio",    mass:183.84,   cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d⁴ 6s²",    period:"Período 6", en:2.36, state:"Sólido" },
+  { z:75,  sym:"Re", name:"Renio",        mass:186.207,  cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d⁵ 6s²",    period:"Período 6", en:1.90, state:"Sólido" },
+  { z:76,  sym:"Os", name:"Osmio",        mass:190.23,   cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d⁶ 6s²",    period:"Período 6", en:2.20, state:"Sólido" },
+  { z:77,  sym:"Ir", name:"Iridio",       mass:192.217,  cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d⁷ 6s²",    period:"Período 6", en:2.20, state:"Sólido" },
+  { z:78,  sym:"Pt", name:"Platino",      mass:195.084,  cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d⁹ 6s¹",    period:"Período 6", en:2.28, state:"Sólido" },
+  { z:79,  sym:"Au", name:"Oro",          mass:196.967,  cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d¹⁰ 6s¹",   period:"Período 6", en:2.54, state:"Sólido" },
+  { z:80,  sym:"Hg", name:"Mercurio",     mass:200.592,  cat:"Metal de transición",   config:"[Xe] 4f¹⁴ 5d¹⁰ 6s²",   period:"Período 6", en:2.00, state:"Líquido" },
+  { z:81,  sym:"Tl", name:"Talio",        mass:204.38,   cat:"Metal",                 config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹",period:"Período 6", en:1.62, state:"Sólido" },
+  { z:82,  sym:"Pb", name:"Plomo",        mass:207.2,    cat:"Metal",                 config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²",period:"Período 6", en:2.33, state:"Sólido" },
+  { z:83,  sym:"Bi", name:"Bismuto",      mass:208.980,  cat:"Metal",                 config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³",period:"Período 6", en:2.02, state:"Sólido" },
+  { z:84,  sym:"Po", name:"Polonio",      mass:209,      cat:"Metaloide",             config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴",period:"Período 6", en:2.00, state:"Sólido" },
+  { z:85,  sym:"At", name:"Ástato",       mass:210,      cat:"Halógeno",              config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵",period:"Período 6", en:2.20, state:"Sólido" },
+  { z:86,  sym:"Rn", name:"Radón",        mass:222,      cat:"Gas noble",             config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶",period:"Período 6", en:null, state:"Gas" },
+  { z:87,  sym:"Fr", name:"Francio",      mass:223,      cat:"Metal alcalino",        config:"[Rn] 7s¹",             period:"Período 7", en:0.70, state:"Sólido" },
+  { z:88,  sym:"Ra", name:"Radio",        mass:226,      cat:"Metal alcalinotérreo",  config:"[Rn] 7s²",             period:"Período 7", en:0.90, state:"Sólido" },
+  { z:89,  sym:"Ac", name:"Actinio",      mass:227,      cat:"Actínido",              config:"[Rn] 6d¹ 7s²",         period:"Período 7", en:1.10, state:"Sólido" },
+  { z:90,  sym:"Th", name:"Torio",        mass:232.038,  cat:"Actínido",              config:"[Rn] 6d² 7s²",         period:"Período 7", en:1.30, state:"Sólido" },
+  { z:91,  sym:"Pa", name:"Protactinio",  mass:231.036,  cat:"Actínido",              config:"[Rn] 5f² 6d¹ 7s²",     period:"Período 7", en:1.50, state:"Sólido" },
+  { z:92,  sym:"U",  name:"Uranio",       mass:238.029,  cat:"Actínido",              config:"[Rn] 5f³ 6d¹ 7s²",     period:"Período 7", en:1.38, state:"Sólido" },
+  { z:93,  sym:"Np", name:"Neptunio",     mass:237,      cat:"Actínido",              config:"[Rn] 5f⁴ 6d¹ 7s²",     period:"Período 7", en:1.36, state:"Sólido" },
+  { z:94,  sym:"Pu", name:"Plutonio",     mass:244,      cat:"Actínido",              config:"[Rn] 5f⁶ 7s²",         period:"Período 7", en:1.28, state:"Sólido" },
+  { z:95,  sym:"Am", name:"Americio",     mass:243,      cat:"Actínido",              config:"[Rn] 5f⁷ 7s²",         period:"Período 7", en:1.30, state:"Sólido" },
+  { z:96,  sym:"Cm", name:"Curio",        mass:247,      cat:"Actínido",              config:"[Rn] 5f⁷ 6d¹ 7s²",     period:"Período 7", en:1.30, state:"Sólido" },
+  { z:97,  sym:"Bk", name:"Berkelio",     mass:247,      cat:"Actínido",              config:"[Rn] 5f⁹ 7s²",         period:"Período 7", en:1.30, state:"Sólido" },
+  { z:98,  sym:"Cf", name:"Californio",   mass:251,      cat:"Actínido",              config:"[Rn] 5f¹⁰ 7s²",        period:"Período 7", en:1.30, state:"Sólido" },
+  { z:99,  sym:"Es", name:"Einsteinio",   mass:252,      cat:"Actínido",              config:"[Rn] 5f¹¹ 7s²",        period:"Período 7", en:1.30, state:"Sólido" },
+  { z:100, sym:"Fm", name:"Fermio",       mass:257,      cat:"Actínido",              config:"[Rn] 5f¹² 7s²",        period:"Período 7", en:1.30, state:"Sólido" },
+  { z:101, sym:"Md", name:"Mendelevio",   mass:258,      cat:"Actínido",              config:"[Rn] 5f¹³ 7s²",        period:"Período 7", en:1.30, state:"Sólido" },
+  { z:102, sym:"No", name:"Nobelio",      mass:259,      cat:"Actínido",              config:"[Rn] 5f¹⁴ 7s²",        period:"Período 7", en:1.30, state:"Sólido" },
+  { z:103, sym:"Lr", name:"Lawrencio",    mass:266,      cat:"Actínido",              config:"[Rn] 5f¹⁴ 7s² 7p¹",    period:"Período 7", en:1.30, state:"Sólido" },
+  { z:104, sym:"Rf", name:"Rutherfordio", mass:267,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d² 7s²",    period:"Período 7", en:null, state:"Sólido" },
+  { z:105, sym:"Db", name:"Dubnio",       mass:268,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d³ 7s²",    period:"Período 7", en:null, state:"Sólido" },
+  { z:106, sym:"Sg", name:"Seaborgio",    mass:271,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d⁴ 7s²",    period:"Período 7", en:null, state:"Sólido" },
+  { z:107, sym:"Bh", name:"Bohrio",       mass:272,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d⁵ 7s²",    period:"Período 7", en:null, state:"Sólido" },
+  { z:108, sym:"Hs", name:"Hasio",        mass:270,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d⁶ 7s²",    period:"Período 7", en:null, state:"Sólido" },
+  { z:109, sym:"Mt", name:"Meitnerio",    mass:278,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d⁷ 7s²",    period:"Período 7", en:null, state:"Sólido" },
+  { z:110, sym:"Ds", name:"Darmstadtio",  mass:281,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d⁸ 7s²",    period:"Período 7", en:null, state:"Sólido" },
+  { z:111, sym:"Rg", name:"Roentgenio",   mass:282,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d¹⁰ 7s¹",   period:"Período 7", en:null, state:"Sólido" },
+  { z:112, sym:"Cn", name:"Copernicio",   mass:285,      cat:"Metal de transición",   config:"[Rn] 5f¹⁴ 6d¹⁰ 7s²",   period:"Período 7", en:null, state:"Sólido" },
+  { z:113, sym:"Nh", name:"Nihonio",      mass:286,      cat:"Metal",                 config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹",period:"Período 7", en:null, state:"Sólido" },
+  { z:114, sym:"Fl", name:"Flerovio",     mass:289,      cat:"Metal",                 config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²",period:"Período 7", en:null, state:"Sólido" },
+  { z:115, sym:"Mc", name:"Moscovio",     mass:290,      cat:"Metal",                 config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³",period:"Período 7", en:null, state:"Sólido" },
+  { z:116, sym:"Lv", name:"Livermorio",   mass:293,      cat:"Metal",                 config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴",period:"Período 7", en:null, state:"Sólido" },
+  { z:117, sym:"Ts", name:"Teneso",       mass:294,      cat:"Halógeno",              config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵",period:"Período 7", en:null, state:"Sólido" },
+  { z:118, sym:"Og", name:"Oganesón",     mass:294,      cat:"Gas noble",             config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶",period:"Período 7", en:null, state:"Gas" },
+];
+
+const T_UMA_TO_G = 1.66054e-24;
+
+const tInput = document.getElementById('t-searchInput');
+const tSugDiv = document.getElementById('t-suggestions');
+const tCard   = document.getElementById('t-resultCard');
+const tEmpty  = document.getElementById('t-emptyState');
+
+function tSearch(q) {
+  if (!q) return [];
+  q = q.toLowerCase().trim();
+  const num = parseInt(q);
+  return elements.filter(el =>
+    el.name.toLowerCase().includes(q) ||
+    el.sym.toLowerCase() === q ||
+    el.sym.toLowerCase().startsWith(q) ||
+    (!isNaN(num) && el.z === num)
+  ).slice(0, 8);
+}
+
+function tRenderSuggestions(results) {
+  tSugDiv.innerHTML = '';
+  if (!results.length) { tSugDiv.classList.remove('visible'); return; }
+  results.forEach(el => {
+    const div = document.createElement('div');
+    div.className = 't-sug-item';
+    div.innerHTML = `
+      <span class="t-sug-name">${el.name}</span>
+      <span style="font-size:0.65rem;color:var(--dark-dim);font-family:'Share Tech Mono',monospace;">Z=${el.z} · ${el.cat}</span>
+      <span class="t-sug-sym">${el.sym}</span>`;
+    div.addEventListener('click', () => tSelectElement(el));
+    tSugDiv.appendChild(div);
+  });
+  tSugDiv.classList.add('visible');
+}
+
+/* Redondeo personalizado:
+   - decimal < 0.5 exacto → entero inferior  (16.4 → 16)
+   - decimal > 0.5 exacto → entero superior  (16.6 → 17)
+   - decimal = 0.5 exacto → x.5             (16.5 → 16.5) */
+function fmtUMA(n) {
+  const floor = Math.floor(n);
+  const dec = n - floor;
+  if (Math.abs(dec - 0.5) < 1e-9) return (floor + 0.5).toString();
+  return Math.round(n).toString();
+}
+/* Formatea masa absoluta con 2 decimales: 1.66×10⁻²⁴ */
+function fmtMabs(n) { return n.toExponential(2); }
+
+function tSelectElement(el) {
+  tInput.value = el.name;
+  tSugDiv.classList.remove('visible');
+
+  const A = Math.round(el.mass);
+  const Z = el.z;
+  const N = A - Z;
+  const mAbs = el.mass * T_UMA_TO_G;
+
+  document.getElementById('t-elZ').textContent = Z;
+  document.getElementById('t-elSym').textContent = el.sym;
+  document.getElementById('t-elMassSmall').textContent = fmtUMA(el.mass);
+  document.getElementById('t-elName').textContent = el.name;
+  document.getElementById('t-elCategory').textContent = el.cat;
+  document.getElementById('t-elConfig').textContent = el.config;
+
+  document.getElementById('t-dA').textContent = A;
+  document.getElementById('t-dZ').textContent = Z;
+  document.getElementById('t-dUMA').textContent = fmtUMA(el.mass);
+  document.getElementById('t-dE').textContent = Z;
+  document.getElementById('t-dP').textContent = Z;
+  document.getElementById('t-dN').textContent = N;
+  document.getElementById('t-dMabs').textContent = fmtMabs(mAbs) + ' g';
+  document.getElementById('t-dEN').textContent = el.en !== null ? el.en.toFixed(2) : '—';
+  document.getElementById('t-dState').textContent = el.state || '—';
+
+  document.getElementById('t-footerNote').textContent = `Masa isotópica estándar · Z=${Z} · A≈${A}`;
+  document.getElementById('t-elPeriod').textContent = el.period;
+
+  tEmpty.style.display = 'none';
+  tCard.classList.add('visible');
+}
+
+tInput.addEventListener('input', () => {
+  const results = tSearch(tInput.value);
+  tRenderSuggestions(results);
+  if (!tInput.value.trim()) {
+    tCard.classList.remove('visible');
+    tEmpty.style.display = '';
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.t-search-box')) tSugDiv.classList.remove('visible');
+});
+
+tInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const results = tSearch(tInput.value);
+    if (results.length > 0) tSelectElement(results[0]);
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CALCULADORA MOLECULAR — Logic
+   ══════════════════════════════════════════════════════════════════════════ */
+const MOLECULE_NAMES = {
+  'H2O':'Agua','CO2':'Dióxido de carbono','NaCl':'Cloruro de sodio (Sal)',
+  'NH3':'Amoníaco','HCl':'Ácido clorhídrico','H2SO4':'Ácido sulfúrico',
+  'HNO3':'Ácido nítrico','NaOH':'Hidróxido de sodio','KOH':'Hidróxido de potasio',
+  'Ca(OH)2':'Hidróxido de calcio','CaCO3':'Carbonato de calcio',
+  'C6H12O6':'Glucosa','C12H22O11':'Sacarosa','C2H6O':'Etanol',
+  'C8H18':'Octano','CH4':'Metano','C2H2':'Acetileno','C6H6':'Benceno',
+  'C3H8':'Propano','CO':'Monóxido de carbono','NO2':'Dióxido de nitrógeno',
+  'SO2':'Dióxido de azufre','SO3':'Trióxido de azufre',
+  'H2O2':'Agua oxigenada','MgO':'Óxido de magnesio',
+  'Fe2O3':'Óxido de hierro III — Herrumbre','Al2O3':'Óxido de aluminio',
+  'CuSO4':'Sulfato de cobre','Na2CO3':'Carbonato de sodio',
+  'KMnO4':'Permanganato de potasio','AgNO3':'Nitrato de plata',
+};
+/* ELEMENTS lookup — built from the full 118-element array above */
+const ELEMENTS = {};
+elements.forEach(el => { ELEMENTS[el.sym] = { name: el.name, mass: el.mass }; });
+
+const C_COLORS    = ['cc-0','cc-1','cc-2','cc-3','cc-4','cc-5','cc-6','cc-7'];
+const C_BAR_COLORS= ['#c8401a','#1a6bc8','#2a8a3e','#8a2ac8','#c87a1a','#1a8ac8','#6a8a1a','#c81a6a'];
+const C_UMA_TO_G  = 1.66054e-24;
+const AVOGADRO    = 6.02214076e23;
+
+function cParseFormula(formula) {
+  const stack = [{}];
+  function add(map, sym, n) { map[sym] = (map[sym] || 0) + n; }
+  let i = 0;
+  while (i < formula.length) {
+    if (formula[i] === '(') {
+      stack.push({}); i++;
+    } else if (formula[i] === ')') {
+      i++;
+      let numStr = '';
+      while (i < formula.length && /\d/.test(formula[i])) { numStr += formula[i]; i++; }
+      const mult = numStr ? parseInt(numStr) : 1;
+      const top = stack.pop();
+      const cur = stack[stack.length - 1];
+      for (const [sym, cnt] of Object.entries(top)) add(cur, sym, cnt * mult);
+    } else if (/[A-Z]/.test(formula[i])) {
+      let sym = formula[i]; i++;
+      while (i < formula.length && /[a-z]/.test(formula[i])) { sym += formula[i]; i++; }
+      let numStr = '';
+      while (i < formula.length && /\d/.test(formula[i])) { numStr += formula[i]; i++; }
+      const cnt = numStr ? parseInt(numStr) : 1;
+      if (!ELEMENTS[sym]) throw new Error(`Elemento desconocido: "${sym}"`);
+      add(stack[stack.length - 1], sym, cnt);
+    } else {
+      throw new Error(`Carácter inválido: "${formula[i]}"`);
+    }
+  }
+  if (stack.length !== 1) throw new Error('Paréntesis desbalanceados');
+  return stack[0];
+}
+
+function cToSub(n) {
+  if (n === 1) return '';
+  return String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[parseInt(d)]).join('');
+}
+
+function cFormatFormula(parsed) {
+  return Object.entries(parsed).map(([sym, n]) => sym + cToSub(n)).join('');
+}
+
+function cCalculate() {
+  const raw = document.getElementById('c-formulaInput').value.trim();
+  const err = document.getElementById('c-errorMsg');
+  const res = document.getElementById('c-results');
+  err.style.display = 'none';
+  res.style.display = 'none';
+  if (!raw) return;
+
+  let parsed;
+  try {
+    parsed = cParseFormula(raw);
+  } catch(e) {
+    err.textContent = '⚠ ' + e.message + '. Ejemplo válido: C2H6O  o  Ca(OH)2';
+    err.style.display = 'block';
+    return;
+  }
+
+  const entries = Object.entries(parsed);
+  let totalUMA = 0;
+
+  document.getElementById('c-rFormula').textContent = cFormatFormula(parsed);
+  const molNombre = MOLECULE_NAMES && MOLECULE_NAMES[raw] ? ` — ${MOLECULE_NAMES[raw]}` : '';
+  document.getElementById('c-rFormulaNote').textContent =
+    `Fórmula: ${raw}${molNombre}  ·  ${entries.length} elemento${entries.length > 1 ? 's' : ''}`;
+
+  const stepsBody = document.getElementById('c-stepsBody');
+  stepsBody.innerHTML = '';
+  const eqParts = [];
+
+  entries.forEach(([sym, cnt], idx) => {
+    const el = ELEMENTS[sym];
+    const sub = el.mass * cnt;
+    totalUMA += sub;
+    const color = C_COLORS[idx % C_COLORS.length];
+    const row = document.createElement('div');
+    row.className = 'c-step-row';
+    row.style.animationDelay = (idx * 0.06) + 's';
+    row.innerHTML = `
+      <div class="c-step-element">
+        <div class="c-el-badge ${color}">${sym}</div>
+        <div>
+          <div class="c-step-el-name">${el.name}</div>
+          <div class="c-step-el-sub">Z = ${Object.keys(ELEMENTS).indexOf(sym)+1 || '—'}</div>
+        </div>
+      </div>
+      <div class="c-step-col">
+        <div class="c-val">${fmtUMA(el.mass)}</div>
+        <div class="c-lbl">u.m.a./átomo</div>
+      </div>
+      <div class="c-step-col">
+        <div class="c-val">× ${cnt}</div>
+        <div class="c-lbl">átomos</div>
+      </div>
+      <div class="c-step-col">
+        <div class="c-val ${color}">${fmtUMA(sub)}</div>
+        <div class="c-lbl">u.m.a.</div>
+      </div>`;
+    stepsBody.appendChild(row);
+    eqParts.push(`<span class="${color}">(${fmtUMA(el.mass)} × ${cnt})</span>`);
+  });
+
+  document.getElementById('c-equationLine').innerHTML =
+    eqParts.join(' <span class="c-eq-op">+</span> ') +
+    ` <span class="c-eq-op">=</span> <span class="c-eq-result">${fmtUMA(totalUMA)} u.m.a.</span>`;
+
+  const mabs = totalUMA * C_UMA_TO_G;
+  document.getElementById('c-rUMA').textContent  = fmtUMA(totalUMA);
+  document.getElementById('c-rMabs').textContent = fmtMabs(mabs);
+
+  const bars = document.getElementById('c-compBars');
+  bars.innerHTML = '';
+  entries.forEach(([sym, cnt], idx) => {
+    const el = ELEMENTS[sym];
+    const pct = (el.mass * cnt / totalUMA * 100);
+    const barColor = C_BAR_COLORS[idx % C_BAR_COLORS.length];
+    const div = document.createElement('div');
+    div.className = 'c-comp-bar-row';
+    div.innerHTML = `
+      <div class="c-comp-bar-header">
+        <span class="c-comp-el-name">${el.name} (${sym}${cToSub(cnt)})</span>
+        <span class="c-comp-pct" style="color:${barColor}">${pct.toFixed(2)}%</span>
+      </div>
+      <div class="c-comp-bar-track">
+        <div class="c-comp-bar-fill" style="width:0%;background:${barColor}" data-pct="${pct.toFixed(2)}"></div>
+      </div>`;
+    bars.appendChild(div);
+  });
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('.c-comp-bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+  }));
+
+  document.getElementById('c-moleData').innerHTML = `
+    <div class="c-mole-item">
+      <div class="c-mole-val">${fmtUMA(totalUMA)} g/mol</div>
+      <div class="c-mole-lbl">Masa molar</div>
+    </div>
+    <div class="c-mole-item">
+      <div class="c-mole-val">${AVOGADRO.toExponential(3)}</div>
+      <div class="c-mole-lbl">Moléculas por mol (Nₐ)</div>
+    </div>
+    <div class="c-mole-item">
+      <div class="c-mole-val">${fmtUMA(totalUMA * C_UMA_TO_G * AVOGADRO)} g</div>
+      <div class="c-mole-lbl">Masa de 1 mol</div>
+    </div>
+    <div class="c-mole-item">
+      <div class="c-mole-val">${entries.reduce((s,[,n])=>s+n,0)}</div>
+      <div class="c-mole-lbl">Átomos por molécula</div>
+    </div>`;
+
+  res.style.display = 'block';
+  res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function cLoadExample(f) {
+  document.getElementById('c-formulaInput').value = f;
+  cCalculate();
+}
+
+document.getElementById('c-calcBtn').addEventListener('click', cCalculate);
+document.getElementById('c-formulaInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') cCalculate();
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CONVERSOR DE MOLES — Logic
+   ══════════════════════════════════════════════════════════════════════════ */
+/* Reutilizamos cParseFormula y ELEMENTS del panel de calculadora */
+function vGetMolarMass(formula) {
+  /* Primero intentamos como elemento único */
+  const el = elements.find(e => e.sym === formula);
+  if (el) return el.mass;
+  /* Luego como fórmula molecular */
+  const parsed = cParseFormula(formula);
+  let total = 0;
+  for (const [sym, cnt] of Object.entries(parsed)) {
+    if (!ELEMENTS[sym]) throw new Error(`Elemento desconocido: ${sym}`);
+    total += ELEMENTS[sym].mass * cnt;
+  }
+  return total;
+}
+
+function vFormatMoles(n) {
+  if (n === 0) return '0';
+  if (n >= 0.001 && n < 1e6) return parseFloat(n.toPrecision(4)).toString();
+  return n.toExponential(3);
+}
+
+function vFormatMolecules(n) {
+  return n.toExponential(3);
+}
+
+function vCalculate() {
+  const formula = document.getElementById('v-formulaInput').value.trim();
+  const amount  = parseFloat(document.getElementById('v-amount').value);
+  const unit    = document.querySelector('input[name="v-unitR"]:checked').value;
+  const errDiv  = document.getElementById('v-error');
+  const resDiv  = document.getElementById('v-results');
+
+  errDiv.style.display = 'none';
+  resDiv.style.display = 'none';
+
+  if (!formula) { errDiv.textContent = '⚠ Ingresá una fórmula o símbolo.'; errDiv.style.display='block'; return; }
+  if (isNaN(amount) || amount <= 0) { errDiv.textContent = '⚠ Ingresá un valor numérico positivo.'; errDiv.style.display='block'; return; }
+
+  let molarMass;
+  try { molarMass = vGetMolarMass(formula); }
+  catch(e) { errDiv.textContent = '⚠ ' + e.message; errDiv.style.display='block'; return; }
+
+  const AVOG = 6.02214076e23;
+  let moles;
+  if (unit === 'mol')       moles = amount;
+  else if (unit === 'g')    moles = amount / molarMass;
+  else                      moles = amount / AVOG;
+
+  const grams     = moles * molarMass;
+  const molecules = moles * AVOG;
+
+  const molName = MOLECULE_NAMES[formula] || '';
+  const displayName = molName ? `${formula} — ${molName}` : formula;
+
+  document.getElementById('v-rFormula').textContent = displayName;
+  document.getElementById('v-rMasaMolar').textContent = `Masa molar: ${fmtUMA(molarMass)} g/mol`;
+  document.getElementById('v-rMol').textContent = vFormatMoles(moles);
+  document.getElementById('v-rGrams').textContent = vFormatMoles(grams);
+  document.getElementById('v-rMolecules').textContent = vFormatMolecules(molecules);
+
+  let inputLabel = unit === 'mol' ? `${amount} mol` : unit === 'g' ? `${amount} g` : `${vFormatMolecules(amount)} moléculas`;
+  document.getElementById('v-rFormula2').innerHTML =
+    `<strong>Resumen:</strong> ${inputLabel} de <strong>${formula}</strong> equivalen a ` +
+    `<strong>${vFormatMoles(moles)} mol</strong>, ` +
+    `<strong>${vFormatMoles(grams)} g</strong> y ` +
+    `<strong>${vFormatMolecules(molecules)}</strong> moléculas.`;
+
+  resDiv.style.display = 'block';
+  resDiv.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function vLoadExample(formula, amount, unit) {
+  document.getElementById('v-formulaInput').value = formula;
+  document.getElementById('v-amount').value = amount;
+  document.querySelectorAll('input[name="v-unitR"]').forEach(r => { r.checked = r.value === unit; });
+  vCalculate();
+}
+
+document.getElementById('v-calcBtn').addEventListener('click', vCalculate);
+document.getElementById('v-formulaInput').addEventListener('keydown', e => { if(e.key==='Enter') vCalculate(); });
+document.getElementById('v-amount').addEventListener('keydown', e => { if(e.key==='Enter') vCalculate(); });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TABLA VISUAL — Build grid
+   ══════════════════════════════════════════════════════════════════════════ */
+const VT_CAT_CLASS = {
+  'No metal':'vt-noMetal','Metal alcalino':'vt-metalAlc',
+  'Metal alcalinotérreo':'vt-metalAlcTerr','Metal de transición':'vt-metalTrans',
+  'Metal':'vt-metal','Metaloide':'vt-metaloide','Halógeno':'vt-halogeno',
+  'Gas noble':'vt-gasNoble','Lantánido':'vt-lantanido','Actínido':'vt-actinido'
+};
+const VT_CAT_COLOR = {
+  'No metal':'#34d399','Metal alcalino':'#f87171','Metal alcalinotérreo':'#fb923c',
+  'Metal de transición':'#60a5fa','Metal':'#a78bfa','Metaloide':'#86efac',
+  'Halógeno':'#e879f9','Gas noble':'#22d3ee','Lantánido':'#fbbf24','Actínido':'#f472b6'
+};
+// Periodic table positions [z, col, row] (1-indexed)
+const VT_POS = {
+  1:[1,1],2:[18,1],3:[1,2],4:[2,2],5:[13,2],6:[14,2],7:[15,2],8:[16,2],9:[17,2],10:[18,2],
+  11:[1,3],12:[2,3],13:[13,3],14:[14,3],15:[15,3],16:[16,3],17:[17,3],18:[18,3],
+  19:[1,4],20:[2,4],21:[3,4],22:[4,4],23:[5,4],24:[6,4],25:[7,4],26:[8,4],27:[9,4],28:[10,4],29:[11,4],30:[12,4],31:[13,4],32:[14,4],33:[15,4],34:[16,4],35:[17,4],36:[18,4],
+  37:[1,5],38:[2,5],39:[3,5],40:[4,5],41:[5,5],42:[6,5],43:[7,5],44:[8,5],45:[9,5],46:[10,5],47:[11,5],48:[12,5],49:[13,5],50:[14,5],51:[15,5],52:[16,5],53:[17,5],54:[18,5],
+  55:[1,6],56:[2,6],57:[3,6],72:[4,6],73:[5,6],74:[6,6],75:[7,6],76:[8,6],77:[9,6],78:[10,6],79:[11,6],80:[12,6],81:[13,6],82:[14,6],83:[15,6],84:[16,6],85:[17,6],86:[18,6],
+  87:[1,7],88:[2,7],89:[3,7],104:[4,7],105:[5,7],106:[6,7],107:[7,7],108:[8,7],109:[9,7],110:[10,7],111:[11,7],112:[12,7],113:[13,7],114:[14,7],115:[15,7],116:[16,7],117:[17,7],118:[18,7],
+  // Lanthanides row 9
+  58:[4,9],59:[5,9],60:[6,9],61:[7,9],62:[8,9],63:[9,9],64:[10,9],65:[11,9],66:[12,9],67:[13,9],68:[14,9],69:[15,9],70:[16,9],71:[17,9],
+  // Actinides row 10
+  90:[4,10],91:[5,10],92:[6,10],93:[7,10],94:[8,10],95:[9,10],96:[10,10],97:[11,10],98:[12,10],99:[13,10],100:[14,10],101:[15,10],102:[16,10],103:[17,10]
+};
+
+function vtBuildGrid() {
+  const container = document.getElementById('vt-grid');
+  if (!container || container.dataset.built) return;
+  container.dataset.built = '1';
+
+  // Build lookup: "row-col" -> element
+  const cells = {};
+  elements.forEach(el => {
+    if (VT_POS[el.z]) {
+      const [col, row] = VT_POS[el.z];
+      cells[`${row}-${col}`] = el;
+    }
+  });
+
+  function makeCell(el) {
+    const div = document.createElement('div');
+    if (!el) {
+      div.className = 'vt-cell vt-cell-empty';
+    } else {
+      const cls = VT_CAT_CLASS[el.cat] || 'vt-metalTrans';
+      div.className = `vt-cell ${cls}`;
+      div.title = el.name;
+      div.innerHTML = `<span class="vt-z">${el.z}</span><span class="vt-sym">${el.sym}</span><span class="vt-mass">${fmtUMA(el.mass)}</span>`;
+      div.addEventListener('click', () => vtShowModal(el));
+    }
+    return div;
+  }
+
+  // Main table: rows 1-7
+  const mainGrid = document.createElement('div');
+  mainGrid.className = 'vt-grid';
+  for (let row = 1; row <= 7; row++) {
+    for (let col = 1; col <= 18; col++) {
+      mainGrid.appendChild(makeCell(cells[`${row}-${col}`]));
+    }
+  }
+  container.appendChild(mainGrid);
+
+  // Spacer
+  const spacer = document.createElement('div');
+  spacer.style.cssText = 'height:10px;';
+  container.appendChild(spacer);
+
+  // Label row for lanthanides/actinides
+  const labelRow = document.createElement('div');
+  labelRow.style.cssText = 'display:flex;gap:3px;min-width:800px;max-width:1000px;margin:0 auto 3px;';
+  const labelSpacer = document.createElement('div');
+  labelSpacer.style.cssText = `width:calc(3 * (minmax(42px,1fr) + 3px));flex:3;font-size:0.55rem;color:var(--dark-dim);font-family:'Share Tech Mono',monospace;display:flex;align-items:center;padding-left:4px;`;
+  labelSpacer.textContent = '★ Lantánidos / Actínidos';
+  labelRow.appendChild(labelSpacer);
+  container.appendChild(labelRow);
+
+  // Lanthanides (row 9) and Actinides (row 10) — cols 4-17 map to grid cols 1-14 with a 3-col indent
+  const fGrid = document.createElement('div');
+  fGrid.className = 'vt-grid';
+  fGrid.style.cssText = 'grid-template-columns: repeat(3, minmax(42px,1fr)) repeat(14, minmax(42px,1fr)) repeat(1, minmax(42px,1fr));';
+
+  for (let frow = 9; frow <= 10; frow++) {
+    // 3 empty indent cells (cols 1-3 are empty in lanthanide rows)
+    for (let c = 0; c < 3; c++) fGrid.appendChild(makeCell(null));
+    // Lanthanides z=58-71 (row9, cols 4-17), Actinides z=90-103 (row10, cols 4-17)
+    for (let col = 4; col <= 17; col++) {
+      fGrid.appendChild(makeCell(cells[`${frow}-${col}`]));
+    }
+    // 1 empty trailing cell
+    fGrid.appendChild(makeCell(null));
+  }
+  container.appendChild(fGrid);
+}
+
+function vtShowModal(el) {
+  const cls = VT_CAT_CLASS[el.cat] || 'vt-metalTrans';
+  const col = VT_CAT_COLOR[el.cat] || '#60a5fa';
+  const mAbs = el.mass * 1.66053906660e-24;
+  const existing = document.getElementById('vt-modal-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'vt-modal-overlay';
+  overlay.id = 'vt-modal-overlay';
+  overlay.innerHTML = `
+    <div class="vt-modal">
+      <div class="vt-modal-header">
+        <div class="vt-modal-sym-box ${cls}" style="border:2px solid ${col}40">
+          <span class="mz">${el.z}</span>
+          <span class="ms">${el.sym}</span>
+          <span class="mm">${fmtUMA(el.mass)}</span>
+        </div>
+        <div class="vt-modal-info">
+          <h3>${el.name}</h3>
+          <div class="mi-cat" style="color:${col}">${el.cat}</div>
+          <div class="mi-cfg">${el.config}</div>
+        </div>
+      </div>
+      <div class="vt-modal-grid">
+        <div class="vt-modal-cell"><div class="mlbl">Z — Protones</div><div class="mval" style="color:${col}">${el.z}</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">A — Masa</div><div class="mval">${Math.round(el.mass)}</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">Neutrones</div><div class="mval">${Math.round(el.mass) - el.z}</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">UMA</div><div class="mval">${fmtUMA(el.mass)}</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">Masa abs.</div><div class="mval" style="font-size:0.75rem">${fmtMabs(mAbs)} g</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">Electroneg.</div><div class="mval">${el.en ?? '—'}</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">Estado</div><div class="mval" style="font-size:0.8rem">${el.state}</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">Período</div><div class="mval" style="font-size:0.75rem">${el.period}</div></div>
+        <div class="vt-modal-cell"><div class="mlbl">Electrones</div><div class="mval">${el.z}</div></div>
+      </div>
+      <div class="vt-modal-footer">
+        <span style="font-size:0.65rem;color:var(--dark-dim);font-family:'Share Tech Mono',monospace;">${el.config}</span>
+        <button class="vt-modal-close" onclick="document.getElementById('vt-modal-overlay').remove()">Cerrar</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+// Build legend
+function vtBuildLegend() {
+  const leg = document.getElementById('vt-legend');
+  if (!leg || leg.dataset.built) return;
+  leg.dataset.built = '1';
+  Object.entries(VT_CAT_COLOR).forEach(([name, color]) => {
+    leg.innerHTML += `<div class="vt-legend-item"><div class="vt-legend-dot" style="background:${color}"></div>${name}</div>`;
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DILUCIONES — Logic (C1V1 = C2V2 + concentración molar)
+   ══════════════════════════════════════════════════════════════════════════ */
+function dilSolve(mode) {
+  const get = id => parseFloat(document.getElementById(id).value);
+  const errEl = document.getElementById('dil-error');
+  errEl.style.display = 'none';
+
+  if (mode === 'dilution') {
+    const c1 = get('dil-c1'), v1 = get('dil-v1'), c2 = get('dil-c2'), v2 = get('dil-v2');
+    const vals = [c1,v1,c2,v2];
+    const unknowns = vals.filter(isNaN).length;
+    if (unknowns !== 1) { errEl.textContent = '⚠ Dejá exactamente un campo vacío para calcular.'; errEl.style.display='block'; return; }
+    let result, label, unit;
+    if (isNaN(c1)) { result = (c2*v2)/v1; label='C₁'; unit='M'; document.getElementById('dil-c1').value=result.toPrecision(4); }
+    else if (isNaN(v1)) { result = (c2*v2)/c1; label='V₁'; unit='L'; document.getElementById('dil-v1').value=result.toPrecision(4); }
+    else if (isNaN(c2)) { result = (c1*v1)/v2; label='C₂'; unit='M'; document.getElementById('dil-c2').value=result.toPrecision(4); }
+    else { result = (c1*v1)/c2; label='V₂'; unit='L'; document.getElementById('dil-v2').value=result.toPrecision(4); }
+    document.getElementById('dil-result-lbl').textContent = label;
+    document.getElementById('dil-result-val').textContent = parseFloat(result.toPrecision(4));
+    document.getElementById('dil-result-unit').textContent = unit;
+    const fc1 = isNaN(c1) ? result : c1;
+    const fc2 = isNaN(c2) ? result : c2;
+    document.getElementById('dil-factor').textContent = fc2 > 0 ? parseFloat((fc1/fc2).toPrecision(3)) : '—';
+    document.getElementById('dil-equation').textContent = `C₁·V₁ = C₂·V₂ → ${isNaN(c1)?'?':c1}·${isNaN(v1)?'?':v1} = ${isNaN(c2)?'?':c2}·${isNaN(v2)?'?':v2}`;
+    document.getElementById('dil-results').style.display = 'block';
+  } else {
+    // Molar concentration: C = n/V = m/(M·V)
+    const formula = document.getElementById('cm-formula').value.trim();
+    const mass = get('cm-mass'), vol = get('cm-vol');
+    if (!formula) { errEl.textContent = '⚠ Ingresá una fórmula.'; errEl.style.display='block'; return; }
+    if (isNaN(mass) || isNaN(vol) || mass<=0 || vol<=0) { errEl.textContent = '⚠ Ingresá masa y volumen positivos.'; errEl.style.display='block'; return; }
+    let molarMass;
+    try { molarMass = vGetMolarMass(formula); }
+    catch(e) { errEl.textContent = '⚠ ' + e.message; errEl.style.display='block'; return; }
+    const moles = mass / molarMass;
+    const conc = moles / vol;
+    const volMl = vol * 1000;
+    document.getElementById('cm-r-moles').textContent = parseFloat(moles.toPrecision(4));
+    document.getElementById('cm-r-conc').textContent = parseFloat(conc.toPrecision(4));
+    document.getElementById('cm-r-mm').textContent = fmtUMA(molarMass);
+    document.getElementById('cm-r-vol').textContent = `${vol} L (${volMl} mL)`;
+    document.getElementById('cm-results').style.display = 'block';
+  }
+}
+
+function dilReset(mode) {
+  if (mode==='dilution') {
+    ['dil-c1','dil-v1','dil-c2','dil-v2'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('dil-results').style.display='none';
+  } else {
+    ['cm-formula','cm-mass','cm-vol'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('cm-results').style.display='none';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   QUIZ — Logic
+   ══════════════════════════════════════════════════════════════════════════ */
+let qzState = { score:0, q:0, total:10, timerId:null, seconds:0, mode:'symbol', answered:false, current:null };
+
+function qzResetState() {
+  clearInterval(qzState.timerId);
+  qzState.score = 0;
+  qzState.q = 0;
+  qzState.answered = false;
+  qzState.timerId = null;
+  qzState.current = null;
+}
+
+const QZ_MODES = {
+  symbol:  { label:'Símbolo → Nombre',      pool: e => e.name,   gen: el => ({ q:`¿Cómo se llama el elemento con símbolo <strong>${el.sym}</strong>?`,              correct: el.name   }) },
+  name:    { label:'Nombre → Símbolo',       pool: e => e.sym,    gen: el => ({ q:`¿Cuál es el símbolo de <strong>${el.name}</strong>?`,                             correct: el.sym    }) },
+  mass:    { label:'Elemento → Masa',        pool: e => fmtUMA(e.mass), gen: el => ({ q:`¿Cuál es la masa atómica de <strong>${el.name}</strong> (${el.sym})?`,      correct: fmtUMA(el.mass) }) },
+  z:       { label:'Símbolo → Z',            pool: e => String(e.z), gen: el => ({ q:`¿Cuál es el número atómico (Z) de <strong>${el.sym}</strong>?`,                correct: String(el.z)    }) },
+  cat:     { label:'Elemento → Categoría',   pool: e => e.cat,    gen: el => ({ q:`¿A qué categoría pertenece <strong>${el.name}</strong>?`,                         correct: el.cat    }) },
+  config:  { label:'Config. electrónica',    pool: e => e.config, gen: el => ({ q:`¿Cuál es la configuración electrónica de <strong>${el.sym}</strong>?`,            correct: el.config }) },
+};
+
+function qzShuffle(arr) { return arr.sort(() => Math.random()-0.5); }
+
+function qzGenQuestion() {
+  const mode = QZ_MODES[qzState.mode];
+  const pool = elements.filter(e => e.z <= 86); // skip super-heavy
+  const el = pool[Math.floor(Math.random()*pool.length)];
+  const data = mode.gen(el);
+
+  // Get 3 wrong answers (unique)
+  let wrongs = qzShuffle(pool.filter(e => e.z !== el.z))
+    .map(e => mode.pool(e))
+    .filter((v,i,a) => a.indexOf(v)===i && v !== data.correct)
+    .slice(0,3);
+
+  // If not enough unique wrong answers (e.g. category mode), pad
+  const allVals = [...new Set(pool.map(e => mode.pool(e)))].filter(v => v !== data.correct);
+  while (wrongs.length < 3) wrongs.push(allVals[wrongs.length]);
+
+  const options = qzShuffle([data.correct, ...wrongs]);
+  return { ...data, options, el };
+}
+
+function qzStart() {
+  const modeEl = document.querySelector('.qz-mode-btn.selected');
+  qzState.mode = modeEl ? modeEl.dataset.mode : 'symbol';
+  qzResetState();
+  document.getElementById('qz-start').style.display = 'none';
+  document.getElementById('qz-result').style.display = 'none';
+  document.getElementById('qz-card').style.display = 'block';
+  qzNextQuestion();
+}
+
+function qzNextQuestion() {
+  qzState.q++;
+  qzState.answered = false;
+  const data = qzGenQuestion();
+  qzState.current = data;
+
+  document.getElementById('qz-progress').style.width = `${((qzState.q-1)/qzState.total)*100}%`;
+  document.getElementById('qz-counter').textContent = `Pregunta ${qzState.q} / ${qzState.total}`;
+  document.getElementById('qz-score-display').textContent = `Puntos: ${qzState.score}`;
+  document.getElementById('qz-question').innerHTML = data.q;
+  document.getElementById('qz-feedback').className = 'qz-feedback';
+  document.getElementById('qz-feedback').textContent = '';
+  document.getElementById('qz-next').className = 'qz-next-btn';
+
+  const optionsDiv = document.getElementById('qz-options');
+  optionsDiv.innerHTML = '';
+  data.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'qz-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => qzAnswer(opt, data));
+    optionsDiv.appendChild(btn);
+  });
+
+  // Timer
+  clearInterval(qzState.timerId);
+  qzState.seconds = 20;
+  const timerEl = document.getElementById('qz-timer');
+  timerEl.textContent = `⏱ ${qzState.seconds}s`;
+  timerEl.className = 'qz-timer';
+  qzState.timerId = setInterval(() => {
+    qzState.seconds--;
+    timerEl.textContent = `⏱ ${qzState.seconds}s`;
+    if (qzState.seconds <= 5) timerEl.className = 'qz-timer urgent';
+    if (qzState.seconds <= 0) {
+      clearInterval(qzState.timerId);
+      if (!qzState.answered) qzAnswer(null, data);
+    }
+  }, 1000);
+}
+
+function qzAnswer(chosen, data) {
+  if (qzState.answered) return;
+  qzState.answered = true;
+  clearInterval(qzState.timerId);
+  const correct = chosen === data.correct;
+  if (correct) qzState.score += 10;
+
+  document.querySelectorAll('.qz-option').forEach(btn => {
+    btn.classList.add('disabled');
+    if (btn.textContent === data.correct) btn.classList.add('correct');
+    else if (btn.textContent === chosen) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('qz-feedback');
+  fb.className = 'qz-feedback show ' + (correct ? 'ok' : 'fail');
+  if (correct) {
+    fb.textContent = `✓ ¡Correcto! +10 puntos`;
+  } else if (!chosen) {
+    fb.textContent = `⏰ ¡Tiempo! La respuesta era: ${data.correct}`;
+  } else {
+    fb.textContent = `✗ Incorrecto. La respuesta era: ${data.correct}`;
+  }
+  document.getElementById('qz-score-display').textContent = `Puntos: ${qzState.score}`;
+
+  const nextBtn = document.getElementById('qz-next');
+  nextBtn.className = 'qz-next-btn show';
+  nextBtn.textContent = qzState.q >= qzState.total ? 'Ver resultados →' : 'Siguiente →';
+}
+
+function qzNext() {
+  if (qzState.q >= qzState.total) { qzShowResult(); return; }
+  qzNextQuestion();
+}
+
+function qzShowResult() {
+  document.getElementById('qz-card').style.display = 'none';
+  const pct = Math.round((qzState.score / (qzState.total*10))*100);
+  let icon, msg;
+  if (pct === 100) { icon='🏆'; msg='¡Perfecto! Sos un experto en química.'; }
+  else if (pct >= 80) { icon='🌟'; msg='¡Excelente! Muy buen conocimiento.'; }
+  else if (pct >= 60) { icon='👍'; msg='Bien hecho. Seguí practicando.'; }
+  else if (pct >= 40) { icon='📚'; msg='Hay espacio para mejorar. ¡Seguí estudiando!'; }
+  else { icon='🔬'; msg='Repasá los elementos y volvé a intentarlo.'; }
+
+  document.getElementById('qz-result-icon').textContent = icon;
+  document.getElementById('qz-result-score').textContent = `${qzState.score} / ${qzState.total*10}`;
+  document.getElementById('qz-result-pct').textContent = `${pct}% correcto`;
+  document.getElementById('qz-result-msg').textContent = msg;
+  document.getElementById('qz-result').style.display = 'block';
+}
+
+function qzReset() {
+  document.getElementById('qz-result').style.display = 'none';
+  document.getElementById('qz-card').style.display = 'none';
+  document.getElementById('qz-start').style.display = 'block';
+}
+
+// Tab switching extended
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'visual') { vtBuildGrid(); vtBuildLegend(); }
+}
+
+// Mode selector — deferred so panel-quiz HTML is parsed first
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.qz-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.qz-mode-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+});
+
+</script>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PANEL 4 — TABLA VISUAL
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-visual" class="panel">
+  <h1>⬛ TABLA PERIÓDICA VISUAL</h1>
+  <p class="vt-subtitle">118 Elementos · Clic para ver detalles</p>
+  <div class="vt-legend" id="vt-legend"></div>
+  <div class="vt-grid-wrap">
+    <div id="vt-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PANEL 5 — DILUCIONES
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-dilucion" class="panel">
+  <div style="max-width:640px;margin:0 auto;">
+
+    <header style="text-align:center;margin-bottom:32px;padding-top:8px;">
+      <h1 style="font-family:'Syne',sans-serif;font-size:clamp(1.4rem,5vw,2.4rem);font-weight:800;color:#1a1208;margin-bottom:6px;">🧪 Diluciones</h1>
+      <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.2em;color:#9a8e7a;font-family:'DM Mono',monospace;">Ley de dilución C₁V₁ = C₂V₂ · Concentración Molar</p>
+    </header>
+
+    <!-- C1V1=C2V2 -->
+    <div class="dil-section">
+      <div class="dil-title">① Ley de Dilución — C₁V₁ = C₂V₂</div>
+      <p style="font-size:0.75rem;color:#9a8e7a;margin-bottom:16px;font-family:'DM Mono',monospace;">Dejá <strong>un solo campo vacío</strong> para que sea calculado automáticamente.</p>
+      <div class="dil-grid">
+        <div class="dil-field">
+          <label>C₁ — Concentración inicial (M)</label>
+          <input type="number" id="dil-c1" placeholder="ej: 2.0" step="any" min="0">
+        </div>
+        <div class="dil-field">
+          <label>V₁ — Volumen inicial (L)</label>
+          <input type="number" id="dil-v1" placeholder="ej: 0.5" step="any" min="0">
+        </div>
+        <div class="dil-field">
+          <label>C₂ — Concentración final (M)</label>
+          <input type="number" id="dil-c2" placeholder="ej: 0.5" step="any" min="0">
+        </div>
+        <div class="dil-field">
+          <label>V₂ — Volumen final (L)</label>
+          <input type="number" id="dil-v2" placeholder="ej: 2.0" step="any" min="0">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="dil-btn" onclick="dilSolve('dilution')">Calcular</button>
+        <button class="dil-btn" style="background:#9a8e7a;" onclick="dilReset('dilution')">Limpiar</button>
+      </div>
+      <div id="dil-results" style="display:none;margin-top:20px;">
+        <div id="dil-equation" style="font-family:'DM Mono',monospace;font-size:0.8rem;color:#9a8e7a;margin-bottom:12px;padding:10px;background:rgba(251,191,36,0.08);border-left:3px solid #fbbf24;"></div>
+        <div class="dil-result-grid">
+          <div class="dil-result-card highlight">
+            <div class="dil-rc-lbl" id="dil-result-lbl">Resultado</div>
+            <div class="dil-rc-val" id="dil-result-val">—</div>
+            <div class="dil-rc-unit" id="dil-result-unit">—</div>
+          </div>
+          <div class="dil-result-card">
+            <div class="dil-rc-lbl">Factor de dilución</div>
+            <div class="dil-rc-val" id="dil-factor">—</div>
+            <div class="dil-rc-unit">C₁ / C₂</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Concentración Molar -->
+    <div class="dil-section">
+      <div class="dil-title">② Concentración Molar — C = n / V</div>
+      <div class="dil-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="dil-field" style="grid-column:1/-1;">
+          <label>Fórmula de la sustancia</label>
+          <input type="text" id="cm-formula" placeholder="ej: NaCl, H2SO4, C6H12O6" autocomplete="off">
+        </div>
+        <div class="dil-field">
+          <label>Masa (g)</label>
+          <input type="number" id="cm-mass" placeholder="ej: 5.85" step="any" min="0">
+        </div>
+        <div class="dil-field">
+          <label>Volumen (L)</label>
+          <input type="number" id="cm-vol" placeholder="ej: 0.1" step="any" min="0">
+        </div>
+      </div>
+      <!-- Quick examples -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+        <span style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:#9a8e7a;width:100%;font-family:'DM Mono',monospace;">Ejemplos:</span>
+        <button class="c-example-chip" style="font-size:0.7rem;" onclick="document.getElementById('cm-formula').value='NaCl';document.getElementById('cm-mass').value='5.85';document.getElementById('cm-vol').value='0.1';">5.85g NaCl / 0.1L</button>
+        <button class="c-example-chip" style="font-size:0.7rem;" onclick="document.getElementById('cm-formula').value='H2SO4';document.getElementById('cm-mass').value='9.8';document.getElementById('cm-vol').value='0.1';">9.8g H₂SO₄ / 0.1L</button>
+        <button class="c-example-chip" style="font-size:0.7rem;" onclick="document.getElementById('cm-formula').value='C6H12O6';document.getElementById('cm-mass').value='18';document.getElementById('cm-vol').value='0.1';">18g Glucosa / 0.1L</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="dil-btn" onclick="dilSolve('molar')">Calcular</button>
+        <button class="dil-btn" style="background:#9a8e7a;" onclick="dilReset('molar')">Limpiar</button>
+      </div>
+      <div id="cm-results" style="display:none;margin-top:20px;">
+        <div class="dil-result-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">
+          <div class="dil-result-card highlight">
+            <div class="dil-rc-lbl">Concentración</div>
+            <div class="dil-rc-val" id="cm-r-conc">—</div>
+            <div class="dil-rc-unit">mol/L (M)</div>
+          </div>
+          <div class="dil-result-card">
+            <div class="dil-rc-lbl">Moles</div>
+            <div class="dil-rc-val" id="cm-r-moles">—</div>
+            <div class="dil-rc-unit">mol</div>
+          </div>
+          <div class="dil-result-card">
+            <div class="dil-rc-lbl">Masa molar</div>
+            <div class="dil-rc-val" id="cm-r-mm">—</div>
+            <div class="dil-rc-unit">g/mol</div>
+          </div>
+          <div class="dil-result-card">
+            <div class="dil-rc-lbl">Volumen</div>
+            <div class="dil-rc-val" style="font-size:0.9rem" id="cm-r-vol">—</div>
+            <div class="dil-rc-unit">litros / mL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dil-error" style="display:none;background:#fff0ee;border:1.5px solid #c8401a;border-radius:2px;padding:12px 16px;font-size:0.8rem;color:#c8401a;font-family:'DM Mono',monospace;"></div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PANEL 6 — QUIZ
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-quiz" class="panel">
+  <div class="qz-container">
+
+    <div class="qz-header">
+      <h1>QUIZ QUÍMICO</h1>
+      <p>Ponete a prueba con los elementos</p>
+    </div>
+
+    <!-- Start screen -->
+    <div id="qz-start" class="qz-start-card">
+      <span class="qz-start-icon">🎯</span>
+      <h2>¿Cuánto sabés de química?</h2>
+      <p>10 preguntas · 20 segundos por pregunta · 10 puntos por acierto · Respuestas aleatorias</p>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--dark-dim);margin-bottom:10px;font-family:'Share Tech Mono',monospace;">Modo de juego:</div>
+        <div class="qz-modes">
+          <button class="qz-mode-btn selected" data-mode="symbol">Símbolo → Nombre</button>
+          <button class="qz-mode-btn" data-mode="name">Nombre → Símbolo</button>
+          <button class="qz-mode-btn" data-mode="mass">Masa Atómica</button>
+          <button class="qz-mode-btn" data-mode="z">Número Atómico</button>
+          <button class="qz-mode-btn" data-mode="cat">Categoría</button>
+        </div>
+      </div>
+      <button class="qz-btn" onclick="qzStart()">¡Empezar!</button>
+    </div>
+
+    <!-- Question card -->
+    <div id="qz-card" style="display:none;" class="qz-card">
+      <div class="qz-progress-bar"><div class="qz-progress-fill" id="qz-progress" style="width:0%"></div></div>
+      <div class="qz-meta">
+        <span class="qz-counter" id="qz-counter">Pregunta 1 / 10</span>
+        <span class="qz-timer" id="qz-timer">⏱ 20s</span>
+        <span class="qz-score" id="qz-score-display">Puntos: 0</span>
+      </div>
+      <div class="qz-question" id="qz-question"></div>
+      <div class="qz-options" id="qz-options"></div>
+      <div class="qz-feedback" id="qz-feedback"></div>
+      <button class="qz-next-btn" id="qz-next" onclick="qzNext()">Siguiente →</button>
+    </div>
+
+    <!-- Result screen -->
+    <div id="qz-result" style="display:none;" class="qz-result-card">
+      <span class="qz-result-icon" id="qz-result-icon">🏆</span>
+      <div class="qz-result-score" id="qz-result-score">100 / 100</div>
+      <div class="qz-result-label" id="qz-result-pct">100% correcto</div>
+      <div class="qz-result-msg" id="qz-result-msg"></div>
+      <button class="qz-retry-btn" onclick="qzReset()">Jugar de nuevo</button>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
